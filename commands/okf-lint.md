@@ -1,0 +1,94 @@
+---
+description: 위키 health-check
+allowed-tools: [Bash, Read, Grep, Glob]
+---
+
+# OKF Lint
+
+`okf-lint` skill을 실행해 OKF 지식 노드의 정합성을 점검한다.
+
+## 실행 흐름
+
+`okf-lint` skill의 절차를 그대로 따른다. 아래 순서로 실행한다.
+
+---
+
+## 단계 1: 점검 범위 결정
+
+인자로 경로가 주어지면 해당 경로를 사용한다. 없으면 현재 repo의 `docs/okf/`를 기본값으로 쓴다.
+
+```bash
+find docs/okf -name "*.md" | sort
+```
+
+---
+
+## 단계 2: 모순 (Contradiction) 점검
+
+같은 `title` 또는 `resource` 값을 가진 노드를 찾아 충돌 여부를 확인한다.
+
+```bash
+grep -rh '^resource:' docs/okf/ | sort | uniq -d
+grep -rh '^title:' docs/okf/ | sort | uniq -d
+```
+
+---
+
+## 단계 3: Stale (오래된 노드) 점검
+
+노드 `timestamp`와 `resource`의 마지막 git 변경 시각을 비교한다.
+
+```bash
+grep -rn '^timestamp:' docs/okf/
+git log --follow -1 --format="%ci" -- <resource 경로>
+```
+
+---
+
+## 단계 4: Orphan (고아 노드) 점검
+
+어느 노드도 링크하지 않는 노드를 찾는다.
+
+```bash
+for f in docs/okf/*.md; do
+  name=$(basename "$f" .md)
+  if [ "$name" = "index" ]; then continue; fi
+  count=$(grep -rl "$name" docs/okf/ | grep -v "^$f$" | wc -l | tr -d ' ')
+  if [ "$count" -eq 0 ]; then echo "ORPHAN: $f"; fi
+done
+```
+
+---
+
+## 단계 5: 누락 cross-ref / 미작성 노드 점검
+
+관계 섹션의 링크 대상 파일이 실제로 존재하는지 확인한다.
+
+```bash
+grep -rh '\[.*\](\.\/.*\.md)' docs/okf/ \
+  | grep -oP '\(\.\/\K[^)]+' \
+  | sort -u \
+  | while read target; do
+      [ -f "docs/okf/$target" ] || echo "MISSING: $target"
+    done
+```
+
+---
+
+## 단계 6: 결과 보고
+
+4가지 점검 결과를 표로 합산해 보고한다. **자동 수정 금지** — 모든 수정은 사용자 확인 후 별도 작업으로 진행한다.
+
+```
+## OKF Lint 결과
+
+점검 경로: docs/okf/
+점검 시각: <ISO8601, KST>
+
+### 모순 (N건)
+### Stale (N건)
+### Orphan (N건)
+### 누락 cross-ref (N건)
+
+이상 발견 없음: ✅ / 발견: ⚠️ N건
+```
