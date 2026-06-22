@@ -31,7 +31,10 @@ ls <경로>
 
 ## 단계 2: okf-enrichment agent 호출
 
-`Task` 도구로 `okf-enrichment` agent를 호출한다. 인자로 대상 경로를 전달한다.
+`Task` 도구로 `okf-enrichment` agent를 호출한다.
+
+- `description`: "OKF 노드 초안 생성"
+- `prompt`: 대상 코드 경로와 함께 "okf-authoring 양식을 따라 노드 초안을 만들되, 컬럼·시그니처를 복제하지 말고 관계·맥락을 보강하라"는 지시를 담는다.
 
 agent가 반환한 노드 초안을 화면에 출력한다.
 
@@ -53,11 +56,17 @@ agent가 반환한 노드 초안을 화면에 출력한다.
 1. 파일명 결정: `docs/okf/<노드명>.md` (okf-convention 파일명 규칙 준수)
 2. 파일 작성
 3. `docs/okf/index.md` 열어 새 노드 항목 추가
-4. 변경 사항 요약 보고
+4. `docs/okf/log.md`에 아래 형식으로 한 줄 append (없으면 생성)
+
+```
+## [<yyyy-MM-dd>] ingest | <대상>
+```
+
+5. 변경 사항 요약 보고
 
 ```bash
 # index.md 존재 확인
 ls docs/okf/index.md
 ```
 
-저장 완료 후 생성된 파일 경로와 index 변경 내용을 보고한다.
+저장 완료 후 생성된 파일 경로와 index·log 변경 내용을 보고한다.
