@@ -1,0 +1,14 @@
+{
+  "description": "docs/okf 노드 작성 시 자동 검증 + index 갱신",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate.sh docs/okf", "timeout": 15 },
+          { "type": "command", "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/update-index.sh docs/okf", "timeout": 15 }
+        ]
+      }
+    ]
+  }
+}
