@@ -50,12 +50,12 @@ git log --follow -1 --format="%ci" -- <resource 경로>
 어느 노드도 링크하지 않는 노드를 찾는다.
 
 ```bash
-for f in docs/okf/*.md; do
+while IFS= read -r f; do
   name=$(basename "$f" .md)
   if [ "$name" = "index" ]; then continue; fi
   count=$(grep -rl "$name" docs/okf/ | grep -v "^$f$" | wc -l | tr -d ' ')
   if [ "$count" -eq 0 ]; then echo "ORPHAN: $f"; fi
-done
+done < <(find docs/okf -name "*.md" -not -name "index.md")
 ```
 
 ---
@@ -65,10 +65,11 @@ done
 관계 섹션의 링크 대상 파일이 실제로 존재하는지 확인한다.
 
 ```bash
+# (이 절차는 okf-lint skill과 동기화 대상)
 grep -rh '\[.*\](\.\/.*\.md)' docs/okf/ \
-  | grep -oP '\(\.\/\K[^)]+' \
-  | sort -u \
-  | while read target; do
+  | grep -oE '\(\.\/[A-Za-z0-9_-]+\.md\)' \
+  | sed -E 's/\(\.\/([^)]+)\)/\1/' | sort -u \
+  | while read -r target; do
       [ -f "docs/okf/$target" ] || echo "MISSING: $target"
     done
 ```

@@ -125,10 +125,15 @@ resource: repositories/my-service/src/domain/order
 
 | 대상 | 형식 | 예 |
 |---|---|---|
-| 파일명·폴더명 | `yyyy-MM-dd` | `2026-06-20-api-service.md` |
+| 파일명·폴더명 | `yyyy-MM-dd-<name>.md` | `2026-06-20-api-service.md` |
 | frontmatter `timestamp` | ISO8601, KST `+09:00` | `2026-06-22T10:00:00+09:00` |
 
 `timestamp` 값은 노드를 생성하거나 갱신하는 시점에 실제 시각을 조회해 기록한다. 과거 날짜를 추측해 넣지 않는다.
+
+```bash
+# 실제 시각 조회 예시
+date '+%Y-%m-%dT%H:%M:%S+09:00'
+```
 
 ---
 

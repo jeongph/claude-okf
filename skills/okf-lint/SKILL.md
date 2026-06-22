@@ -90,13 +90,13 @@ find docs/okf -name "*.md" -not -name "index.md" | sort
 # 특정 노드(예: service-a.md)를 링크하는 파일이 있는지 확인
 grep -rl "service-a" docs/okf/
 
-# inbound 링크 0개인 파일 일괄 탐색 (-L: 매칭 없는 파일 반환)
-for f in docs/okf/*.md; do
+# inbound 링크 0개인 파일 일괄 탐색 (하위 디렉토리 포함)
+while IFS= read -r f; do
   name=$(basename "$f" .md)
   if [ "$name" = "index" ]; then continue; fi
   count=$(grep -rl "$name" docs/okf/ | grep -v "^$f$" | wc -l | tr -d ' ')
   if [ "$count" -eq 0 ]; then echo "ORPHAN: $f"; fi
-done
+done < <(find docs/okf -name "*.md" -not -name "index.md")
 ```
 
 `index.md`는 orphan 판단에서 제외한다 (목차 역할이므로 링크를 받지 않아도 정상).
@@ -117,10 +117,11 @@ done
 
 ```bash
 # 관계 섹션의 링크 대상 파일 존재 여부 확인
+# (이 절차는 okf-lint skill과 동기화 대상)
 grep -rh '\[.*\](\.\/.*\.md)' docs/okf/ \
-  | grep -oP '\(\.\/\K[^)]+' \
-  | sort -u \
-  | while read target; do
+  | grep -oE '\(\.\/[A-Za-z0-9_-]+\.md\)' \
+  | sed -E 's/\(\.\/([^)]+)\)/\1/' | sort -u \
+  | while read -r target; do
       [ -f "docs/okf/$target" ] || echo "MISSING: $target"
     done
 ```

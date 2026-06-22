@@ -11,8 +11,8 @@ OUT="$DIR/index.md"
     [ "$(basename "$f")" = "index.md" ] && continue
     [ -f "$f" ] || continue
     name=$(basename "$f" .md)
-    type=$(awk '/^type:/{print $2; exit}' "$f")
-    desc=$(awk -F': ' '/^description:/{print $2; exit}' "$f")
+    type=$(awk '/^---/{n++; next} n==1 && /^type:/{print $2; exit}' "$f")
+    desc=$(awk '/^---/{n++; next} n==1 && /^description:/{sub(/^description:[[:space:]]*/,""); print; exit}' "$f")
     echo "| [$name](./$name.md) | ${type:--} | ${desc:--} |"
   done
 } > "$OUT"

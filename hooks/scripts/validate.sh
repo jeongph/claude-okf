@@ -13,3 +13,4 @@ while IFS= read -r -d '' f; do
   done < <(grep -oE '\]\(\./[A-Za-z0-9_-]+\.md\)' "$f" 2>/dev/null | sed -E 's/\]\(\.\/(.*)\)/\1/')
 done < <(find "$DIR" -name '*.md' -print0)
 [ "$fail" -eq 0 ] && echo "OKF validate: OK" || echo "OKF validate: 경고 있음"
+exit "$fail"

@@ -49,12 +49,12 @@ okf-authoring 양식에 따라 초안을 작성한다.
 
 ```yaml
 ---
-type: <노드 종류>                 # Product | Infra | Tool | Guide | Reference | Concept 등
+type: <노드 종류>                 # Product | Infra | Tool | Index | History (확장: Guide·Reference·Concept — Phase 2+)
 title: <모듈·도메인명>
 description: <한 줄 요약 — 역할과 존재 이유>
 resource: <원본 코드 경로>        # 컬럼·시그니처 상세는 이 경로를 참조
 tags: [<도메인, 기술 키워드>]
-timestamp: <ISO8601, KST +09:00>  # 현재 시각을 실제로 조회해 기록
+timestamp: <ISO8601, KST +09:00>  # 현재 시각을 실제로 조회해 기록. 예: date '+%Y-%m-%dT%H:%M:%S+09:00'
 status: <배포·사용 상태 (알 수 있는 경우)>
 stack: [<주요 기술>]
 depends_on:
