@@ -15,10 +15,10 @@ allowed-tools: [Bash, Read, Grep, Glob]
 
 ## 단계 1: 점검 범위 결정
 
-인자로 경로가 주어지면 해당 경로를 사용한다. 없으면 현재 repo의 `docs/okf/`를 기본값으로 쓴다.
+점검 경로는 다음 순서로 정한다: ① 인자로 주어지면 그 경로 ② 없으면 `docs/knowledge/`(있으면) ③ 없으면 `docs/okf/`(하위호환) ④ 둘 다 없으면 `docs/knowledge/`.
 
 ```bash
-find docs/okf -name "*.md" | sort
+find docs/knowledge -name "*.md" | sort
 ```
 
 ---
@@ -28,8 +28,8 @@ find docs/okf -name "*.md" | sort
 같은 `title` 또는 `resource` 값을 가진 노드를 찾아 충돌 여부를 확인한다.
 
 ```bash
-grep -rh '^resource:' docs/okf/ | sort | uniq -d
-grep -rh '^title:' docs/okf/ | sort | uniq -d
+grep -rh '^resource:' docs/knowledge/ | sort | uniq -d
+grep -rh '^title:' docs/knowledge/ | sort | uniq -d
 ```
 
 ---
@@ -39,7 +39,7 @@ grep -rh '^title:' docs/okf/ | sort | uniq -d
 노드 `timestamp`와 `resource`의 마지막 git 변경 시각을 비교한다.
 
 ```bash
-grep -rn '^timestamp:' docs/okf/
+grep -rn '^timestamp:' docs/knowledge/
 git log --follow -1 --format="%ci" -- <resource 경로>
 ```
 
@@ -53,9 +53,9 @@ git log --follow -1 --format="%ci" -- <resource 경로>
 while IFS= read -r f; do
   name=$(basename "$f" .md)
   if [ "$name" = "index" ]; then continue; fi
-  count=$(grep -rl "$name" docs/okf/ | grep -v "^$f$" | wc -l | tr -d ' ')
+  count=$(grep -rl "$name" docs/knowledge/ | grep -v "^$f$" | wc -l | tr -d ' ')
   if [ "$count" -eq 0 ]; then echo "ORPHAN: $f"; fi
-done < <(find docs/okf -name "*.md" -not -name "index.md")
+done < <(find docs/knowledge -name "*.md" -not -name "index.md")
 ```
 
 ---
@@ -66,11 +66,11 @@ done < <(find docs/okf -name "*.md" -not -name "index.md")
 
 ```bash
 # (이 절차는 okf-lint skill과 동기화 대상)
-grep -rh '\[.*\](\.\/.*\.md)' docs/okf/ \
+grep -rh '\[.*\](\.\/.*\.md)' docs/knowledge/ \
   | grep -oE '\(\.\/[A-Za-z0-9_-]+\.md\)' \
   | sed -E 's/\(\.\/([^)]+)\)/\1/' | sort -u \
   | while read -r target; do
-      [ -f "docs/okf/$target" ] || echo "MISSING: $target"
+      [ -f "docs/knowledge/$target" ] || echo "MISSING: $target"
     done
 ```
 
@@ -83,7 +83,7 @@ grep -rh '\[.*\](\.\/.*\.md)' docs/okf/ \
 ```
 ## OKF Lint 결과
 
-점검 경로: docs/okf/
+점검 경로: docs/knowledge/
 점검 시각: <ISO8601, KST>
 
 ### 모순 (N건)

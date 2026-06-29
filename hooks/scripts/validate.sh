@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
-DIR="${1:-docs/okf}"
+DIR="${1:-}"
+if [ -z "$DIR" ]; then
+  for cand in docs/knowledge docs/okf; do
+    [ -d "$cand" ] && { DIR="$cand"; break; }
+  done
+  DIR="${DIR:-docs/knowledge}"
+fi
 [ -d "$DIR" ] || { echo "no dir: $DIR"; exit 0; }
 fail=0
 while IFS= read -r -d '' f; do
