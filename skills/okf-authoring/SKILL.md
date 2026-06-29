@@ -1,6 +1,6 @@
 ---
 name: okf-authoring
-description: Use when writing or updating OKF knowledge nodes (docs/okf/*.md) — defines frontmatter schema, body structure, and the authoring discipline. 사용자가 "OKF 노드 작성", "위키 노드 만들어", "지식 노드 기록", "docs/okf 정리", "이 코드 위키화"라고 하거나, AI가 코드·도메인 지식을 OKF 노드로 기록·갱신할 때 스스로 사용. 핵심 규율: 코드 복제가 아니라 코드에 없는 맥락(이유·관계·조망)만 담는다.
+description: 'Use when writing or updating OKF knowledge nodes (docs/okf/*.md) — defines frontmatter schema, body structure, and the authoring discipline. 사용자가 "OKF 노드 작성", "위키 노드 만들어", "지식 노드 기록", "docs/okf 정리", "이 코드 위키화"라고 하거나, AI가 코드·도메인 지식을 OKF 노드로 기록·갱신할 때 스스로 사용. 핵심 규율: 코드 복제가 아니라 코드에 없는 맥락(이유·관계·조망)만 담는다.'
 ---
 
 # OKF Authoring
