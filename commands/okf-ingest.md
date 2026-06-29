@@ -5,7 +5,7 @@ allowed-tools: [Bash, Read, Glob, Grep, Write, Task]
 
 # OKF Ingest
 
-인자로 받은 경로를 분석해 OKF 노드 초안을 생성하고, 사용자 검수 후 `docs/okf/`에 저장한다.
+인자로 받은 경로를 분석해 OKF 노드 초안을 생성하고, 사용자 검수 후 `docs/knowledge/`에 저장한다.
 
 ## 실행 흐름
 
@@ -49,14 +49,14 @@ agent가 반환한 노드 초안을 화면에 출력한다.
 
 ---
 
-## 단계 4: docs/okf/ 저장 및 index·log 갱신
+## 단계 4: docs/knowledge/ 저장 및 index·log 갱신
 
 사용자가 승인하면 다음 순서로 저장한다.
 
-1. 파일명 결정: `docs/okf/<노드명>.md` (okf-convention 파일명 규칙 준수)
+1. 저장 경로 결정: `docs/knowledge/` 우선, 없고 `docs/okf/`가 있으면 후자(하위호환). 파일명: `<경로>/<노드명>.md` (okf-convention 파일명 규칙 준수)
 2. 파일 작성
-3. `docs/okf/index.md` 열어 새 노드 항목 추가
-4. `docs/okf/log.md`에 아래 형식으로 한 줄 append (없으면 생성)
+3. `docs/knowledge/index.md` 열어 새 노드 항목 추가
+4. `docs/knowledge/log.md`에 아래 형식으로 한 줄 append (없으면 생성)
 
 ```
 ## [<yyyy-MM-dd>] ingest | <대상>
@@ -66,7 +66,7 @@ agent가 반환한 노드 초안을 화면에 출력한다.
 
 ```bash
 # index.md 존재 확인
-ls docs/okf/index.md
+ls docs/knowledge/index.md
 ```
 
 저장 완료 후 생성된 파일 경로와 index·log 변경 내용을 보고한다.

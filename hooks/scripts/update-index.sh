@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
-DIR="${1:-docs/okf}"
+DIR="${1:-}"
+if [ -z "$DIR" ]; then
+  for cand in docs/knowledge docs/okf; do
+    [ -d "$cand" ] && { DIR="$cand"; break; }
+  done
+  DIR="${DIR:-docs/knowledge}"
+fi
 [ -d "$DIR" ] || exit 0
 OUT="$DIR/index.md"
 {
