@@ -13,7 +13,7 @@ allowed-tools: [Bash]
 
 ## 단계 1: 검증 대상 경로 결정
 
-인자로 경로가 주어지면 해당 경로를 사용한다. 없으면 `docs/okf/`를 기본값으로 쓴다.
+검증 경로는 다음 순서로 정한다: ① 인자로 주어지면 그 경로 ② 없으면 `docs/knowledge/`(있으면) ③ 없으면 `docs/okf/`(하위호환) ④ 둘 다 없으면 `docs/knowledge/`.
 
 ---
 
@@ -22,7 +22,7 @@ allowed-tools: [Bash]
 `hooks/scripts/validate.sh`를 대상 경로에 대해 실행한다.
 
 ```bash
-bash hooks/scripts/validate.sh docs/okf/
+bash hooks/scripts/validate.sh   # 인자 생략 시 docs/knowledge → docs/okf 순으로 자동 감지
 ```
 
 스크립트가 없으면 오류를 보고하고 중단한다.

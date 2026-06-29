@@ -15,14 +15,14 @@ OKF 지식 노드의 정합성을 점검하는 위키 health-check 가이드다.
 
 ## 1. 점검 범위 결정
 
-먼저 어느 경로를 점검할지 확인한다. 기본값은 현재 repo의 OKF 노드 디렉토리다.
+점검 경로는 다음 순서로 정한다: ① 인자로 주어지면 그 경로 ② 없으면 `docs/knowledge/`(있으면) ③ 없으면 `docs/okf/`(하위호환) ④ 둘 다 없으면 `docs/knowledge/`.
 
 ```bash
-# 기본: 현재 repo의 OKF 노드 전체
-find docs/okf -name "*.md" | sort
+# 점검 경로 자동 감지 (인자 우선, 없으면 knowledge→okf 순)
+OKF_DIR="${1:-}"
+[ -z "$OKF_DIR" ] && { [ -d docs/knowledge ] && OKF_DIR=docs/knowledge || { [ -d docs/okf ] && OKF_DIR=docs/okf || OKF_DIR=docs/knowledge; }; }
 
-# 워크스페이스 조망 노드도 함께 점검할 경우
-find docs/projects -name "*.md" | sort
+find "$OKF_DIR" -name "*.md" | sort
 ```
 
 범위가 맞으면 아래 4가지 점검을 순서대로 수행한다.
@@ -37,10 +37,10 @@ find docs/projects -name "*.md" | sort
 
 ```bash
 # resource 중복 확인
-grep -rh '^resource:' docs/okf/ | sort | uniq -d
+grep -rh '^resource:' docs/knowledge/ | sort | uniq -d
 
 # title 중복 확인
-grep -rh '^title:' docs/okf/ | sort | uniq -d
+grep -rh '^title:' docs/knowledge/ | sort | uniq -d
 ```
 
 중복이 발견되면 해당 파일들을 열어 주요 주장(요약·구성·상태)을 비교한다. 충돌 여부는 **사람이 판단**한다. AI는 후보를 제시하는 역할에 그친다.
@@ -61,7 +61,7 @@ grep -rh '^title:' docs/okf/ | sort | uniq -d
 
 ```bash
 # 노드별 timestamp 추출
-grep -rn '^timestamp:' docs/okf/
+grep -rn '^timestamp:' docs/knowledge/
 
 # resource 경로의 마지막 git 변경 시각 확인 (resource 값을 확인 후 대입)
 git log --follow -1 --format="%ci" -- <resource 경로>
@@ -85,18 +85,18 @@ git log --follow -1 --format="%ci" -- <resource 경로>
 
 ```bash
 # 점검 대상 노드 목록
-find docs/okf -name "*.md" -not -name "index.md" | sort
+find docs/knowledge -name "*.md" -not -name "index.md" | sort
 
 # 특정 노드(예: service-a.md)를 링크하는 파일이 있는지 확인
-grep -rl "service-a" docs/okf/
+grep -rl "service-a" docs/knowledge/
 
 # inbound 링크 0개인 파일 일괄 탐색 (하위 디렉토리 포함)
 while IFS= read -r f; do
   name=$(basename "$f" .md)
   if [ "$name" = "index" ]; then continue; fi
-  count=$(grep -rl "$name" docs/okf/ | grep -v "^$f$" | wc -l | tr -d ' ')
+  count=$(grep -rl "$name" docs/knowledge/ | grep -v "^$f$" | wc -l | tr -d ' ')
   if [ "$count" -eq 0 ]; then echo "ORPHAN: $f"; fi
-done < <(find docs/okf -name "*.md" -not -name "index.md")
+done < <(find docs/knowledge -name "*.md" -not -name "index.md")
 ```
 
 `index.md`는 orphan 판단에서 제외한다 (목차 역할이므로 링크를 받지 않아도 정상).
@@ -118,11 +118,11 @@ done < <(find docs/okf -name "*.md" -not -name "index.md")
 ```bash
 # 관계 섹션의 링크 대상 파일 존재 여부 확인
 # (이 절차는 okf-lint skill과 동기화 대상)
-grep -rh '\[.*\](\.\/.*\.md)' docs/okf/ \
+grep -rh '\[.*\](\.\/.*\.md)' docs/knowledge/ \
   | grep -oE '\(\.\/[A-Za-z0-9_-]+\.md\)' \
   | sed -E 's/\(\.\/([^)]+)\)/\1/' | sort -u \
   | while read -r target; do
-      [ -f "docs/okf/$target" ] || echo "MISSING: $target"
+      [ -f "docs/knowledge/$target" ] || echo "MISSING: $target"
     done
 ```
 
@@ -143,7 +143,7 @@ grep -rh '\[.*\](\.\/.*\.md)' docs/okf/ \
 ```
 ## OKF Lint 결과
 
-점검 경로: docs/okf/
+점검 경로: docs/knowledge/
 점검 시각: <ISO8601, KST>
 
 ### 모순 (N건)

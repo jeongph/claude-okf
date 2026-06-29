@@ -72,7 +72,7 @@ OKF wiki를 검색해 grounded 답변을 생성한다.
 ### 수동 노드 검증
 
 ```
-/okf-validate docs/projects/m13.md
+/okf-validate docs/knowledge/my-node.md
 ```
 
 지정 파일의 OKF 노드를 검증하고 오류 목록을 출력한다.
