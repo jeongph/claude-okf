@@ -140,13 +140,17 @@ resource: repositories/my-service/src/domain/order
 
 ---
 
-## 4. 날짜 표기
+## 4. 파일명·날짜 표기
 
-기계가 읽는 메타데이터는 표준을, 사람이 읽고 정렬하는 이름은 관습을 따른다.
+노드의 성격에 따라 파일명의 날짜 prefix 여부가 갈린다.
+
+- **지식 노드**(Product·Infra·Tool·Index·Guide·Reference·Concept 등 계속 갱신되는 문서): 날짜 없는 안정 슬러그 `<name>.md` (예: `security-model.md`). 살아있는 문서에 생성일 prefix 를 붙이면 파일명이 신선도의 거짓 신호가 되고 노드 간 링크 안정성을 해친다. 갱신 시점은 frontmatter `timestamp` 가 담당한다.
+- **시점 기록 문서**(`History` 등 한 시점의 사실을 남기는 문서): `yyyy-MM-dd-<name>.md` 형태로 날짜 prefix 를 붙인다 (예: `2026-06-20-api-service-release.md`). 날짜가 정렬·식별 정보 그 자체다.
 
 | 대상 | 형식 | 예 |
 |---|---|---|
-| 파일명·폴더명 | `yyyy-MM-dd-<name>.md` | `2026-06-20-api-service.md` |
+| 지식 노드 파일명 | `<name>.md` | `api-service.md` |
+| 시점 기록 문서 파일명·폴더명 | `yyyy-MM-dd-<name>.md` | `2026-06-20-api-service-release.md` |
 | frontmatter `timestamp` | ISO8601, KST `+09:00` | `2026-06-22T10:00:00+09:00` |
 
 `timestamp` 값은 노드를 생성하거나 갱신하는 시점에 실제 시각을 조회해 기록한다. 과거 날짜를 추측해 넣지 않는다.
