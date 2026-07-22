@@ -1,7 +1,7 @@
 {
   "name": "claude-okf",
-  "version": "0.4.0",
-  "description": "OKF(Open Knowledge Format) 기반 LLM-wiki를 자동 활성화 — 코드에서 지식 노드를 작성·검증·lint·enrichment·세션 핸드오프",
+  "version": "0.5.0",
+  "description": "OKF(Open Knowledge Format) 기반 LLM-wiki를 자동 활성화 — 코드에서 지식 노드를 작성·검증·lint·enrichment",
   "author": { "name": "JeongUk Park", "url": "https://github.com/jeongph" },
   "homepage": "https://github.com/jeongph/claude-okf",
   "repository": "https://github.com/jeongph/claude-okf",
