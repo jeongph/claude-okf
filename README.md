@@ -1,5 +1,8 @@
 # claude-okf
 
+[![version](https://img.shields.io/github/v/release/jeongph/claude-okf?label=version&color=blue)](https://github.com/jeongph/claude-okf/releases)
+[![license](https://img.shields.io/github/license/jeongph/claude-okf?color=lightgrey)](LICENSE)
+
 OKF(Open Knowledge Format) 기반 LLM-wiki를 Claude Code에서 **자동 활성화**하는 플러그인.
 
 설치하면 — AI가 OKF 양식을 알고, 코드에서 노드 초안을 만들고, 노드 작성 시 자동 검증·`index` 갱신, 모순·stale 점검, 위키에서 grounded 답을 찾습니다.
