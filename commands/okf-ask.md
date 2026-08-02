@@ -5,7 +5,7 @@ allowed-tools: [Read, Grep, Glob]
 
 # OKF Ask
 
-`docs/knowledge/index.md`를 진입점으로 관련 노드를 탐색하고, 인용 근거와 함께 답변을 합성한다.
+`docs/knowledge/_INDEX.md`를 진입점으로 관련 노드를 탐색하고, 인용 근거와 함께 답변을 합성한다.
 
 ## 실행 흐름
 
@@ -23,13 +23,13 @@ OKF 위키에서 무엇을 찾고 싶으신가요?
 
 ---
 
-## 단계 2: index.md로 관련 노드 탐색
+## 단계 2: _INDEX.md로 관련 노드 탐색
 
-`docs/knowledge/index.md`(없으면 `docs/okf/index.md` — 하위호환)를 읽어 질문과 관련된 노드 후보를 추린다.
+`docs/knowledge/_INDEX.md`를 읽어 질문과 관련된 노드 후보를 추린다.
 
 ```bash
-# index.md 존재 확인
-ls docs/knowledge/index.md
+# _INDEX.md 존재 확인
+ls docs/knowledge/_INDEX.md
 
 # 질문 키워드로 노드 검색
 grep -rl "<키워드>" docs/knowledge/

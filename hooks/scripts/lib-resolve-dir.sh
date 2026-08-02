@@ -2,7 +2,7 @@
 # OKF 노드 디렉토리를 결정한다.
 #  1) 인자로 경로가 주어지면 그대로 사용한다.
 #  2) 없으면 PostToolUse hook이 stdin으로 넘긴 JSON에서 file_path를 읽고,
-#     그 파일이 위키(docs/knowledge 또는 docs/okf) 안에 있을 때만 해당 위키를 반환한다.
+#     그 파일이 노드 디렉토리(docs/knowledge 또는 docs/history) 안에 있을 때만 반환한다.
 # 찾지 못하면 빈 문자열을 반환한다(호출 측에서 무동작 처리).
 #
 # 편집한 파일이 위키 "안"인지만 본다. 예전처럼 상위를 거슬러 올라가며 위키를
@@ -27,7 +27,7 @@ resolve_okf_dir() {
   d=$(dirname "$file")
   while [ "$d" != "/" ] && [ "$d" != "." ]; do
     case "$d" in
-      */docs/knowledge|docs/knowledge|*/docs/okf|docs/okf)
+      */docs/knowledge|docs/knowledge|*/docs/history|docs/history)
         [ -d "$d" ] && { printf '%s' "$d"; return 0; }
         ;;
     esac

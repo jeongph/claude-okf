@@ -50,11 +50,16 @@ mkdir -p "$REPO/.git"   # 레포 경계 표시용
 : > "$REPO/src/deep/nested/App.tsx"
 : > "$REPO/README.md"
 
-# docs/okf 를 쓰는 레포도 하나 만든다.
-REPO2="$WORK/repo-okf"
-mkdir -p "$REPO2/docs/okf"
-: > "$REPO2/docs/okf/노드.md"
+# docs/history 를 쓰는 레포를 만든다.
+REPO2="$WORK/repo-history"
+mkdir -p "$REPO2/docs/history"
+: > "$REPO2/docs/history/2026-01-02-001-claude-작업.md"
 : > "$REPO2/README.md"
+
+# 지원이 끊긴 docs/okf 레포. 무동작이어야 한다.
+REPO3="$WORK/repo-okf"
+mkdir -p "$REPO3/docs/okf"
+: > "$REPO3/docs/okf/노드.md"
 
 # 위키 바깥, 상위 디렉토리에 위키가 있는 별개 프로젝트 (레포 경계 침범 검증용)
 mkdir -p "$WORK/repo/other-project/src"
@@ -65,13 +70,14 @@ printf 'lib-resolve-dir.sh 회귀 테스트\n'
 # --- 위키 안의 파일이면 그 위키를 반환한다 ---
 expect "위키 최상위 노드 → 위키 반환"   "$REPO/docs/knowledge/노드.md"        "$REPO/docs/knowledge"
 expect "위키 하위 노드 → 위키 반환"     "$REPO/docs/knowledge/sub/하위노드.md" "$REPO/docs/knowledge"
-expect "docs/okf 노드 → 위키 반환"      "$REPO2/docs/okf/노드.md"             "$REPO2/docs/okf"
+expect "docs/history 노드 → 디렉토리 반환" "$REPO2/docs/history/2026-01-02-001-claude-작업.md" "$REPO2/docs/history"
 
 # --- 위키 밖의 파일이면 무동작이어야 한다 ---
 expect "레포 루트 README → 무동작"       "$REPO/README.md"                     ""
 expect "src 깊은 파일 → 무동작"          "$REPO/src/deep/nested/App.tsx"       ""
 expect "docs 아래 다른 폴더 → 무동작"    "$REPO/docs/superpowers/specs/spec.md" ""
 expect "상위에 위키가 있는 별개 프로젝트 → 무동작" "$WORK/repo/other-project/src/index.ts" ""
+expect "docs/okf 노드 → 무동작(지원 종료)"  "$REPO3/docs/okf/노드.md"             ""
 
 # --- 인자로 경로를 직접 주는 경로는 그대로 유지된다 (커맨드에서 호출하는 방식) ---
 direct=$(bash -c "source '$LIB'; resolve_okf_dir '$REPO/docs/knowledge'" </dev/null)

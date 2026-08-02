@@ -39,7 +39,7 @@ depends_on:                       # 선택. 기계가독 관계 그래프 (본�
 | `Product` | 사용자 대상 서비스·앱 | 웹·모바일 서비스 |
 | `Infra` | 배포·인프라 구성 | GitOps·k8s 매니페스트 |
 | `Tool` | 개발·운영 도구 | DB 클라이언트 설정 |
-| `Index` | 노드를 묶는 목차·지도 | `index.md` |
+| `Index` | 노드를 묶는 목차·지도 | `_INDEX.md` |
 | `History` | 작업 이력 문서 | `docs/history/` 문서 |
 
 `type`은 **열린 집합**이다. `Guide`·`Reference`·`Concept` 등 코드베이스 맥락에 맞는 값을 새로 쓸 수 있다.
@@ -173,7 +173,7 @@ OKF 표준은 마크다운 링크를 관계 그래프의 기반으로 삼는다.
 
 | 파일명 | 역할 |
 |---|---|
-| `index.md` | 해당 디렉토리 노드의 목차·지도 (`type: Index`) |
+| `_INDEX.md` | 해당 디렉토리 노드의 목차·지도 (`type: Index`) |
 | `log.md` | 노드 변경 이력 (`## [yyyy-MM-dd]` 시간순, Phase 2+ 옵션) |
 
 ---
