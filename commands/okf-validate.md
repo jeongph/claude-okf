@@ -13,16 +13,17 @@ allowed-tools: [Bash]
 
 ## 단계 1: 검증 대상 경로 결정
 
-검증 경로는 다음 순서로 정한다: ① 인자로 주어지면 그 경로 ② 없으면 `docs/knowledge/`.
+검증 경로는 다음 순서로 정한다: ① 인자로 주어지면 그 경로 ② 없으면 `docs/knowledge/`. 이 단계에서 결정한 경로는 다음 단계에서 `validate.sh`에 인자로 명시적으로 전달한다 — 인자 없이 실행하면 훅이 stdin으로 넘기는 편집 대상 파일 정보로만 경로를 찾으므로, 그런 입력이 없는 수동 실행에서는 검증 대상이 없어 아무 출력 없이 종료된다.
 
 ---
 
 ## 단계 2: validate.sh 실행
 
-`hooks/scripts/validate.sh`를 대상 경로에 대해 실행한다.
+`hooks/scripts/validate.sh`에 단계 1에서 결정한 경로를 인자로 넘겨 실행한다.
 
 ```bash
-bash hooks/scripts/validate.sh   # 인자 생략 시 docs/knowledge 자동 감지
+TARGET="${1:-docs/knowledge}"
+bash hooks/scripts/validate.sh "$TARGET"
 ```
 
 스크립트가 없으면 오류를 보고하고 중단한다.
