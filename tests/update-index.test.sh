@@ -31,15 +31,37 @@ make_fixture() {
 }
 
 # history 노드 픽스처. 파일명은 yyyy-MM-dd-NNN-<author>-<작업명>.md 규칙을 따른다.
-# 둘째 문서는 본문에도 YAML 리스트처럼 보이는 줄을 둬서, frontmatter 범위를
+# 2026-01-02에 순번(001·002)만 다른 문서 두 개를 둬서, 날짜가 같을 때
+# 순번 역순으로 정렬되는지 검증할 수 있게 한다.
+# 마지막 문서는 본문에도 YAML 리스트처럼 보이는 줄을 둬서, frontmatter 범위를
 # 벗어난 항목이 tags에 섞이지 않는지 확인한다.
 make_history_fixture() {
   local dir="$1"
   mkdir -p "$dir"
   printf -- '---\ntype: History\ntitle: 첫 작업\ndescription: 첫 작업 설명\ntags:\n  - feat\n---\n\n# 첫 작업\n' \
     > "$dir/2026-01-02-001-claude-첫-작업.md"
+  printf -- '---\ntype: History\ntitle: 같은 날 두 번째 작업\ndescription: 같은 날짜 순번 역순 검증용\ntags:\n  - docs\n---\n\n# 같은 날 두 번째 작업\n' \
+    > "$dir/2026-01-02-002-claude-같은날-두번째-작업.md"
   printf -- '---\ntype: History\ntitle: 둘째 작업\ndescription: 둘째 작업 설명\ntags:\n  - fix\n  - ci\n---\n\n# 둘째 작업\n\n본문 목록:\n  - 본문에 있는 항목\n' \
     > "$dir/2026-03-04-001-claude-둘째-작업.md"
+}
+
+# 플로우 스타일(tags: [a, b]) frontmatter 픽스처. OKF 컨벤션 문서의 필드
+# 템플릿이 이 표기를 예시로 보여주므로 실제로 파싱되는지 확인해야 한다.
+# 간격이 일관되지 않은 표기·단일 항목·빈 목록을 각각 검증하고, 첫 문서는
+# 본문에도 리스트처럼 보이는 줄을 둬서 frontmatter 밖 내용이 섞이지 않는지
+# 함께 확인한다.
+make_history_flow_tags_fixture() {
+  local dir="$1"
+  mkdir -p "$dir"
+  printf -- '---\ntype: History\ntitle: 플로우 다중\ndescription: 플로우 스타일 다중 tags\ntags: [feat, fix]\n---\n\n# 플로우 다중\n\n본문 목록:\n  - 본문에 있는 항목\n' \
+    > "$dir/2026-05-01-001-claude-플로우-다중.md"
+  printf -- '---\ntype: History\ntitle: 플로우 간격 불균일\ndescription: 플로우 스타일 간격 불균일\ntags:  [  feat ,fix  ]\n---\n\n# 플로우 간격 불균일\n' \
+    > "$dir/2026-05-01-002-claude-플로우-간격.md"
+  printf -- '---\ntype: History\ntitle: 플로우 단일\ndescription: 플로우 스타일 단일 항목\ntags: [feat]\n---\n\n# 플로우 단일\n' \
+    > "$dir/2026-05-01-003-claude-플로우-단일.md"
+  printf -- '---\ntype: History\ntitle: 플로우 빈 목록\ndescription: 플로우 스타일 빈 목록\ntags: []\n---\n\n# 플로우 빈 목록\n' \
+    > "$dir/2026-05-01-004-claude-플로우-빈목록.md"
 }
 
 # 시스템에 실재하는 로케일만 테스트 대상으로 삼는다.
@@ -166,7 +188,8 @@ test_history_schema() {
   fi
 }
 
-# --- 테스트 6: history는 날짜 역순(최신 우선)으로 정렬된다 ---
+# --- 테스트 6: history는 날짜 역순(최신 우선)으로, 같은 날짜 안에서는
+#     순번 역순으로 정렬된다 ---
 test_history_order() {
   local dir="$WORK/case6/docs/history"
   make_history_fixture "$dir"
@@ -179,9 +202,66 @@ test_history_order() {
     *2026-03-04*) ok "history 정렬: 최신이 맨 위" ;;
     *)            nope "history 정렬: 최신이 맨 위가 아님 (첫 행: $first_row)" ;;
   esac
+
+  # 날짜 문자열(앞 10자)만 비교하면 같은 날짜 안의 순번 역순은 드러나지
+  # 않는다. 파일명 전체(날짜+순번) 기준 정렬인지 별도로 확인한다.
+  local same_date_rows first_same second_same
+  same_date_rows=$(grep '^| 2026-01-02 ' "$dir/_INDEX.md")
+  first_same=$(printf '%s\n' "$same_date_rows" | sed -n '1p')
+  second_same=$(printf '%s\n' "$same_date_rows" | sed -n '2p')
+  if printf '%s' "$first_same" | grep -qF '2026-01-02-002-claude-같은날-두번째-작업' \
+     && printf '%s' "$second_same" | grep -qF '2026-01-02-001-claude-첫-작업'; then
+    ok "history 정렬: 같은 날짜 안에서는 순번 역순"
+  else
+    nope "history 정렬: 같은 날짜 안에서 순번 역순이 아님"
+    printf '%s\n' "$same_date_rows" | sed 's/^/       /'
+  fi
 }
 
-# --- 테스트 7: 이전 이름의 인덱스는 새 이름으로 옮겨진다 ---
+# --- 테스트 7: 플로우 스타일 tags(tags: [a, b])도 블록 스타일과 동일하게
+#     파싱된다 ---
+test_flow_style_tags() {
+  local dir="$WORK/case7flow/docs/history"
+  make_history_flow_tags_fixture "$dir"
+
+  bash "$SCRIPT" "$dir" >/dev/null 2>&1
+
+  if grep -qF '| 2026-05-01 | [플로우 다중](./2026-05-01-001-claude-플로우-다중.md) | feat, fix |' "$dir/_INDEX.md"; then
+    ok "플로우 tags: 다중 항목이 블록 스타일과 동일하게 파싱됨"
+  else
+    nope "플로우 tags: 다중 항목 파싱이 기대와 다름"
+    grep '플로우 다중' "$dir/_INDEX.md" | sed 's/^/       /'
+  fi
+
+  if grep -qF '| 2026-05-01 | [플로우 간격 불균일](./2026-05-01-002-claude-플로우-간격.md) | feat, fix |' "$dir/_INDEX.md"; then
+    ok "플로우 tags: 불균일한 간격이 정규화됨"
+  else
+    nope "플로우 tags: 간격 불균일 케이스가 기대와 다름"
+    grep '플로우 간격' "$dir/_INDEX.md" | sed 's/^/       /'
+  fi
+
+  if grep -qF '| 2026-05-01 | [플로우 단일](./2026-05-01-003-claude-플로우-단일.md) | feat |' "$dir/_INDEX.md"; then
+    ok "플로우 tags: 단일 항목이 파싱됨"
+  else
+    nope "플로우 tags: 단일 항목이 기대와 다름"
+    grep '플로우 단일' "$dir/_INDEX.md" | sed 's/^/       /'
+  fi
+
+  if grep -qF '| 2026-05-01 | [플로우 빈 목록](./2026-05-01-004-claude-플로우-빈목록.md) | - |' "$dir/_INDEX.md"; then
+    ok "플로우 tags: 빈 목록은 빈 값으로 처리됨"
+  else
+    nope "플로우 tags: 빈 목록 케이스가 기대와 다름"
+    grep '플로우 빈 목록' "$dir/_INDEX.md" | sed 's/^/       /'
+  fi
+
+  if grep -qF '본문에 있는 항목' "$dir/_INDEX.md"; then
+    nope "플로우 tags: 본문 목록이 tags로 새어 나감"
+  else
+    ok "플로우 tags: 본문 목록이 섞이지 않음"
+  fi
+}
+
+# --- 테스트 8: 이전 이름의 인덱스는 새 이름으로 옮겨진다 ---
 # 옮기지 않으면 일반 노드로 잡혀 목록에 인덱스 자신이 들어가고,
 # 갱신이 멈춘 파일이 실제와 어긋난 채 남는다.
 test_migrates_legacy_index() {
@@ -200,7 +280,7 @@ test_migrates_legacy_index() {
   fi
 }
 
-# --- 테스트 8: 사용자가 만든 index.md(인덱스가 아닌 노드)는 보존한다 ---
+# --- 테스트 9: 사용자가 만든 index.md(인덱스가 아닌 노드)는 보존한다 ---
 test_preserves_user_node_named_index() {
   local dir="$WORK/case8/docs/knowledge"
   mkdir -p "$dir"
@@ -225,6 +305,7 @@ test_excludes_self
 test_preserves_metadata
 test_history_schema
 test_history_order
+test_flow_style_tags
 test_migrates_legacy_index
 test_preserves_user_node_named_index
 

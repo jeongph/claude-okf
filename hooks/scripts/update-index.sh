@@ -24,12 +24,31 @@ field() {
   ' "$2"
 }
 
-# tags는 YAML 리스트다. frontmatter 범위 안의 "  - 값"만 모아 쉼표로 잇는다.
-# 범위를 제한하지 않으면 본문의 불릿 목록이 그대로 딸려 들어온다.
+# tags는 YAML 리스트다. 블록 스타일("tags:" 다음 줄부터 "  - 값")과 플로우
+# 스타일("tags: [값, 값]") 둘 다 지원한다. OKF 컨벤션 문서의 필드 템플릿이
+# 플로우 스타일을 예시로 쓰고 있어 이 표기도 실제로 파싱돼야 한다.
+# frontmatter 범위 안에서만 읽는다 — 범위를 제한하지 않으면 본문의 불릿
+# 목록이 그대로 딸려 들어온다.
 tags_of() {
   awk '
     /^---/ { n++; if (n == 2) exit; next }
-    n == 1 && /^tags:/ { in_tags = 1; next }
+    n == 1 && /^tags:/ {
+      line = $0
+      sub(/^tags:[[:space:]]*/, "", line)
+      if (line ~ /^\[.*\]/) {
+        # 플로우 스타일: 대괄호 안을 쉼표로 분리하고 항목별 공백을 정리한다.
+        content = line
+        sub(/^\[/, "", content)
+        sub(/\][[:space:]]*$/, "", content)
+        gsub(/[[:space:]]*,[[:space:]]*/, ", ", content)
+        gsub(/^[[:space:]]+/, "", content)
+        gsub(/[[:space:]]+$/, "", content)
+        out = content
+        exit
+      }
+      in_tags = 1
+      next
+    }
     n == 1 && in_tags && /^[[:space:]]+-[[:space:]]*/ {
       sub(/^[[:space:]]+-[[:space:]]*/, "")
       out = out (out ? ", " : "") $0
