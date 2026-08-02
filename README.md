@@ -60,7 +60,15 @@ OKF 노드 파일(`.md`)을 편집·저장하면 `PostToolUse (Write|Edit 트리
 
 - frontmatter 필수 필드(`type` 등) 누락 검사
 - 관계 링크 유효성 검증
-- `index.md` 갱신
+- `_INDEX.md` 갱신
+
+`docs/knowledge/`는 노드 지도(`| 노드 | type | 요약 |`)를, `docs/history/`는
+작업 이력(`| 날짜 | 제목 | tags |`, 최신 우선)을 생성한다. `_INDEX.md`는
+생성물이므로 직접 편집하지 않는다.
+
+이전 버전은 인덱스를 `index.md`로 만들었다. 훅이 처음 실행될 때 `_INDEX.md`로
+자동 변경되므로 별도 조치는 필요 없다. `type`이 `Index`인 파일만 대상이라
+같은 이름의 일반 노드는 그대로 남는다.
 
 오류가 있으면 편집 직후 터미널에 보고된다.
 

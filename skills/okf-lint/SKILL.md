@@ -15,12 +15,12 @@ OKF 지식 노드의 정합성을 점검하는 위키 health-check 가이드다.
 
 ## 1. 점검 범위 결정
 
-점검 경로는 다음 순서로 정한다: ① 인자로 주어지면 그 경로 ② 없으면 `docs/knowledge/`(있으면) ③ 없으면 `docs/okf/`(하위호환) ④ 둘 다 없으면 `docs/knowledge/`.
+점검 경로는 다음 순서로 정한다: ① 인자로 주어지면 그 경로 ② 없으면 `docs/knowledge/`.
 
 ```bash
-# 점검 경로 자동 감지 (인자 우선, 없으면 knowledge→okf 순)
+# 점검 경로 자동 감지 (인자 우선, 없으면 docs/knowledge)
 OKF_DIR="${1:-}"
-[ -z "$OKF_DIR" ] && { [ -d docs/knowledge ] && OKF_DIR=docs/knowledge || { [ -d docs/okf ] && OKF_DIR=docs/okf || OKF_DIR=docs/knowledge; }; }
+[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
 
 find "$OKF_DIR" -name "*.md" | sort
 ```
@@ -79,13 +79,13 @@ git log --follow -1 --format="%ci" -- <resource 경로>
 
 ## 4. Orphan (고아 노드)
 
-**의미**: 어느 노드도 링크하지 않는 노드. `index.md` 또는 다른 노드의 `## 관계` 섹션에서 참조되지 않으면 탐색 경로가 없다.
+**의미**: 어느 노드도 링크하지 않는 노드. `_INDEX.md` 또는 다른 노드의 `## 관계` 섹션에서 참조되지 않으면 탐색 경로가 없다.
 
 **방법**: 각 노드 파일명을 기준으로 다른 파일에서 inbound 링크가 0개인 파일을 찾는다.
 
 ```bash
 # 점검 대상 노드 목록
-find docs/knowledge -name "*.md" -not -name "index.md" | sort
+find docs/knowledge -name "*.md" -not -name "_INDEX.md" | sort
 
 # 특정 노드(예: service-a.md)를 링크하는 파일이 있는지 확인
 grep -rl "service-a" docs/knowledge/
@@ -96,10 +96,10 @@ while IFS= read -r f; do
   if [ "$name" = "index" ]; then continue; fi
   count=$(grep -rl "$name" docs/knowledge/ | grep -v "^$f$" | wc -l | tr -d ' ')
   if [ "$count" -eq 0 ]; then echo "ORPHAN: $f"; fi
-done < <(find docs/knowledge -name "*.md" -not -name "index.md")
+done < <(find docs/knowledge -name "*.md" -not -name "_INDEX.md")
 ```
 
-`index.md`는 orphan 판단에서 제외한다 (목차 역할이므로 링크를 받지 않아도 정상).
+`_INDEX.md`는 orphan 판단에서 제외한다 (목차 역할이므로 링크를 받지 않아도 정상).
 
 **보고 형식**:
 

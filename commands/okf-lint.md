@@ -15,7 +15,7 @@ allowed-tools: [Bash, Read, Grep, Glob]
 
 ## 단계 1: 점검 범위 결정
 
-점검 경로는 다음 순서로 정한다: ① 인자로 주어지면 그 경로 ② 없으면 `docs/knowledge/`(있으면) ③ 없으면 `docs/okf/`(하위호환) ④ 둘 다 없으면 `docs/knowledge/`.
+점검 경로는 다음 순서로 정한다: ① 인자로 주어지면 그 경로 ② 없으면 `docs/knowledge/`.
 
 ```bash
 find docs/knowledge -name "*.md" | sort
@@ -55,7 +55,7 @@ while IFS= read -r f; do
   if [ "$name" = "index" ]; then continue; fi
   count=$(grep -rl "$name" docs/knowledge/ | grep -v "^$f$" | wc -l | tr -d ' ')
   if [ "$count" -eq 0 ]; then echo "ORPHAN: $f"; fi
-done < <(find docs/knowledge -name "*.md" -not -name "index.md")
+done < <(find docs/knowledge -name "*.md" -not -name "_INDEX.md")
 ```
 
 ---
