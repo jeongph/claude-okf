@@ -18,14 +18,15 @@ OKF 지식 노드의 정합성을 점검하는 위키 health-check 가이드다.
 점검 경로는 다음 순서로 정한다: ① 인자로 주어지면 그 경로 ② 없으면 `docs/knowledge/`.
 
 ```bash
-# 점검 경로 자동 감지 (인자 우선, 없으면 docs/knowledge)
+# 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
 OKF_DIR="${1:-}"
 [ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
+case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
 
 find "$OKF_DIR" -name "*.md" | sort
 ```
 
-범위가 맞으면 아래 4가지 점검을 순서대로 수행한다. 모두 여기서 정한 `$OKF_DIR`을 사용한다.
+범위가 맞으면 아래 4가지 점검을 순서대로 수행한다. 각 점검의 코드 블록도 독립 실행이므로 동일한 결정 로직을 반복한다.
 
 ---
 
@@ -36,6 +37,11 @@ find "$OKF_DIR" -name "*.md" | sort
 **방법**: 같은 `title` 또는 같은 `resource` 값을 가진 노드를 찾고, 기술 내용을 비교한다.
 
 ```bash
+# 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
+OKF_DIR="${1:-}"
+[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
+case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
+
 # resource 중복 확인
 grep -rh '^resource:' "$OKF_DIR/" | sort | uniq -d
 
@@ -60,6 +66,11 @@ grep -rh '^title:' "$OKF_DIR/" | sort | uniq -d
 **방법**: 각 노드의 `timestamp`와 `resource`의 마지막 git 변경 시각을 비교한다.
 
 ```bash
+# 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
+OKF_DIR="${1:-}"
+[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
+case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
+
 # 노드별 timestamp 추출
 grep -rn '^timestamp:' "$OKF_DIR/"
 
@@ -84,6 +95,11 @@ git log --follow -1 --format="%ci" -- <resource 경로>
 **방법**: 각 노드 파일명을 기준으로 다른 파일에서 inbound 링크가 0개인 파일을 찾는다.
 
 ```bash
+# 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
+OKF_DIR="${1:-}"
+[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
+case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
+
 # 점검 대상 노드 목록
 find "$OKF_DIR" -name "*.md" -not -name "_INDEX.md" | sort
 
@@ -116,6 +132,11 @@ done < <(find "$OKF_DIR" -name "*.md" -not -name "_INDEX.md")
 **방법**: 관계 섹션의 마크다운 링크 대상 파일이 실제로 존재하는지 확인한다.
 
 ```bash
+# 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
+OKF_DIR="${1:-}"
+[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
+case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
+
 # 관계 섹션의 링크 대상 파일 존재 여부 확인
 # (이 절차는 okf-lint skill과 동기화 대상)
 grep -rh '\[.*\](\.\/.*\.md)' "$OKF_DIR/" \
@@ -143,7 +164,7 @@ grep -rh '\[.*\](\.\/.*\.md)' "$OKF_DIR/" \
 ```
 ## OKF Lint 결과
 
-점검 경로: $OKF_DIR
+점검 경로: <점검 경로>
 점검 시각: <ISO8601, KST>
 
 ### 모순 (N건)

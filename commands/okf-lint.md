@@ -15,11 +15,13 @@ allowed-tools: [Bash, Read, Grep, Glob]
 
 ## 단계 1: 점검 범위 결정
 
-점검 경로는 다음 순서로 정한다: ① 인자로 주어지면 그 경로 ② 없으면 `docs/knowledge/`. 이후 모든 단계는 이 단계에서 정한 `$OKF_DIR`을 그대로 사용한다.
+점검 경로는 다음 순서로 정한다: ① 인자로 주어지면 그 경로 ② 없으면 `docs/knowledge/`. 아래 각 코드 블록은 독립적으로 실행되어 셸 변수를 이어받지 않으므로, 모든 블록이 이 결정 로직을 처음부터 다시 수행한다.
 
 ```bash
+# 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
 OKF_DIR="${1:-}"
 [ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
+case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
 
 find "$OKF_DIR" -name "*.md" | sort
 ```
@@ -31,6 +33,11 @@ find "$OKF_DIR" -name "*.md" | sort
 같은 `title` 또는 `resource` 값을 가진 노드를 찾아 충돌 여부를 확인한다.
 
 ```bash
+# 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
+OKF_DIR="${1:-}"
+[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
+case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
+
 grep -rh '^resource:' "$OKF_DIR/" | sort | uniq -d
 grep -rh '^title:' "$OKF_DIR/" | sort | uniq -d
 ```
@@ -42,6 +49,11 @@ grep -rh '^title:' "$OKF_DIR/" | sort | uniq -d
 노드 `timestamp`와 `resource`의 마지막 git 변경 시각을 비교한다.
 
 ```bash
+# 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
+OKF_DIR="${1:-}"
+[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
+case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
+
 grep -rn '^timestamp:' "$OKF_DIR/"
 git log --follow -1 --format="%ci" -- <resource 경로>
 ```
@@ -53,6 +65,11 @@ git log --follow -1 --format="%ci" -- <resource 경로>
 어느 노드도 링크하지 않는 노드를 찾는다.
 
 ```bash
+# 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
+OKF_DIR="${1:-}"
+[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
+case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
+
 while IFS= read -r f; do
   name=$(basename "$f" .md)
   if [ "$name" = "index" ]; then continue; fi
@@ -68,6 +85,11 @@ done < <(find "$OKF_DIR" -name "*.md" -not -name "_INDEX.md")
 관계 섹션의 링크 대상 파일이 실제로 존재하는지 확인한다.
 
 ```bash
+# 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
+OKF_DIR="${1:-}"
+[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
+case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
+
 # (이 절차는 okf-lint skill과 동기화 대상)
 grep -rh '\[.*\](\.\/.*\.md)' "$OKF_DIR/" \
   | grep -oE '\(\.\/[A-Za-z0-9_-]+\.md\)' \
@@ -86,7 +108,7 @@ grep -rh '\[.*\](\.\/.*\.md)' "$OKF_DIR/" \
 ```
 ## OKF Lint 결과
 
-점검 경로: $OKF_DIR
+점검 경로: <점검 경로>
 점검 시각: <ISO8601, KST>
 
 ### 모순 (N건)
