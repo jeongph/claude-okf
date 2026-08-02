@@ -72,7 +72,6 @@ case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OK
 
 while IFS= read -r f; do
   name=$(basename "$f" .md)
-  if [ "$name" = "index" ]; then continue; fi
   count=$(grep -rl "$name" "$OKF_DIR/" | grep -v "^$f$" | wc -l | tr -d ' ')
   if [ "$count" -eq 0 ]; then echo "ORPHAN: $f"; fi
 done < <(find "$OKF_DIR" -name "*.md" -not -name "_INDEX.md")

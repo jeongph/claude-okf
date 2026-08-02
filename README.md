@@ -5,7 +5,7 @@
 
 OKF(Open Knowledge Format) 기반 LLM-wiki를 Claude Code에서 **자동 활성화**하는 플러그인.
 
-설치하면 — AI가 OKF 양식을 알고, 코드에서 노드 초안을 만들고, 노드 작성 시 자동 검증·`index` 갱신, 모순·stale 점검, 위키에서 grounded 답을 찾습니다.
+설치하면 — AI가 OKF 양식을 알고, 코드에서 노드 초안을 만들고, 노드 작성 시 자동 검증·`_INDEX.md` 갱신, 모순·stale 점검, 위키에서 grounded 답을 찾습니다.
 
 ## 개념
 
@@ -62,13 +62,16 @@ OKF 노드 파일(`.md`)을 편집·저장하면 `PostToolUse (Write|Edit 트리
 - 관계 링크 유효성 검증
 - `_INDEX.md` 갱신
 
+노드 디렉토리는 `docs/knowledge/` 또는 `docs/history/`만 인식한다. `docs/okf/`는
+더 이상 인식되지 않는다 — 그 경로에 노드가 있다면 `docs/knowledge/`로 옮긴다.
+
 `docs/knowledge/`는 노드 지도(`| 노드 | type | 요약 |`)를, `docs/history/`는
 작업 이력(`| 날짜 | 제목 | tags |`, 최신 우선)을 생성한다. `_INDEX.md`는
 생성물이므로 직접 편집하지 않는다.
 
-이전 버전은 인덱스를 `index.md`로 만들었다. 훅이 처음 실행될 때 `_INDEX.md`로
-자동 변경되므로 별도 조치는 필요 없다. `type`이 `Index`인 파일만 대상이라
-같은 이름의 일반 노드는 그대로 남는다.
+이전 버전은 인덱스를 `index.md` 또는 `INDEX.md`로 만들었다. 훅이 처음 실행될 때
+`_INDEX.md`로 자동 변경되므로 별도 조치는 필요 없다. `type`이 `Index`인 파일만
+대상이라 같은 이름의 일반 노드는 그대로 남는다.
 
 오류가 있으면 편집 직후 터미널에 보고된다.
 

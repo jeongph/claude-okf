@@ -53,7 +53,7 @@ agent가 반환한 노드 초안을 화면에 출력한다.
 
 사용자가 승인하면 다음 순서로 저장한다.
 
-1. 저장 경로 결정: `docs/knowledge/`. 파일명: `<경로>/<노드명>.md` (okf-convention 파일명 규칙 준수)
+1. 저장 경로 결정: `docs/knowledge/`. 파일명: `<경로>/<노드명>.md` (`okf-authoring` skill의 날짜 표기 규칙 준수)
 2. 파일 작성
 3. `docs/knowledge/_INDEX.md` 열어 새 노드 항목 추가
 4. `docs/knowledge/log.md`에 아래 형식으로 한 줄 append (없으면 생성)

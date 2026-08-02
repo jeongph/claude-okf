@@ -109,7 +109,6 @@ grep -rl "service-a" "$OKF_DIR/"
 # inbound 링크 0개인 파일 일괄 탐색 (하위 디렉토리 포함)
 while IFS= read -r f; do
   name=$(basename "$f" .md)
-  if [ "$name" = "index" ]; then continue; fi
   count=$(grep -rl "$name" "$OKF_DIR/" | grep -v "^$f$" | wc -l | tr -d ' ')
   if [ "$count" -eq 0 ]; then echo "ORPHAN: $f"; fi
 done < <(find "$OKF_DIR" -name "*.md" -not -name "_INDEX.md")
