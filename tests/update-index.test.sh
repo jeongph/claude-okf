@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # update-index.sh 회귀 테스트
 #
-# 목적: index.md 생성 결과가 실행 환경의 로케일에 좌우되지 않음을 보장한다.
+# 목적: _INDEX.md 생성 결과가 실행 환경의 로케일에 좌우되지 않음을 보장한다.
 #   glob 확장 정렬은 LC_COLLATE에 종속되므로, 로케일을 고정하지 않으면
-#   같은 디렉토리에서도 머신마다 다른 순서의 index.md가 만들어진다.
+#   같은 디렉토리에서도 머신마다 다른 순서의 _INDEX.md가 만들어진다.
 #   그 결과 노드를 건드리지 않은 커밋에 순서 diff가 딸려 들어간다.
 set -uo pipefail
 
@@ -28,6 +28,18 @@ make_fixture() {
   for n in 릴리스-트랙과-호환성 모바일-스토어-배포-자동화 세션-자정-분할-집계 Alpha beta Gamma-node; do
     printf -- '---\ntype: Concept\ndescription: %s 설명\n---\n\n# %s\n' "$n" "$n" > "$dir/$n.md"
   done
+}
+
+# history 노드 픽스처. 파일명은 yyyy-MM-dd-NNN-<author>-<작업명>.md 규칙을 따른다.
+# 둘째 문서는 본문에도 YAML 리스트처럼 보이는 줄을 둬서, frontmatter 범위를
+# 벗어난 항목이 tags에 섞이지 않는지 확인한다.
+make_history_fixture() {
+  local dir="$1"
+  mkdir -p "$dir"
+  printf -- '---\ntype: History\ntitle: 첫 작업\ndescription: 첫 작업 설명\ntags:\n  - feat\n---\n\n# 첫 작업\n' \
+    > "$dir/2026-01-02-001-claude-첫-작업.md"
+  printf -- '---\ntype: History\ntitle: 둘째 작업\ndescription: 둘째 작업 설명\ntags:\n  - fix\n  - ci\n---\n\n# 둘째 작업\n\n본문 목록:\n  - 본문에 있는 항목\n' \
+    > "$dir/2026-03-04-001-claude-둘째-작업.md"
 }
 
 # 시스템에 실재하는 로케일만 테스트 대상으로 삼는다.
@@ -63,7 +75,7 @@ test_locale_independent_output() {
   local loc out
   for loc in $locales; do
     LC_ALL="$loc" bash "$SCRIPT" "$dir" >/dev/null 2>&1
-    out=$(cat "$dir/index.md")
+    out=$(cat "$dir/_INDEX.md")
     if [ -z "$baseline" ]; then
       baseline="$out"
       baseline_locale="$loc"
@@ -81,7 +93,7 @@ test_locale_independent_output() {
     nope "로케일 독립성: ${baseline_locale} 대비 ${differing} 에서 index.md가 다름"
     printf '       --- %s vs %s ---\n' "$baseline_locale" "$first"
     LC_ALL="$first" bash "$SCRIPT" "$dir" >/dev/null 2>&1
-    diff <(printf '%s\n' "$baseline") "$dir/index.md" | sed 's/^/       /'
+    diff <(printf '%s\n' "$baseline") "$dir/_INDEX.md" | sed 's/^/       /'
   fi
 }
 
@@ -92,10 +104,10 @@ test_idempotent() {
 
   bash "$SCRIPT" "$dir" >/dev/null 2>&1
   local first
-  first=$(cat "$dir/index.md")
+  first=$(cat "$dir/_INDEX.md")
   bash "$SCRIPT" "$dir" >/dev/null 2>&1
 
-  if [ "$first" = "$(cat "$dir/index.md")" ]; then
+  if [ "$first" = "$(cat "$dir/_INDEX.md")" ]; then
     ok "멱등성: 반복 실행해도 index.md 동일"
   else
     nope "멱등성: 반복 실행 결과가 다름"
@@ -110,10 +122,10 @@ test_excludes_self() {
   bash "$SCRIPT" "$dir" >/dev/null 2>&1
   bash "$SCRIPT" "$dir" >/dev/null 2>&1
 
-  if grep -q '\[index\](\./index\.md)' "$dir/index.md"; then
-    nope "자기 제외: index.md가 자기 자신을 목록에 포함함"
+  if grep -q '\[_INDEX\](\./_INDEX\.md)' "$dir/_INDEX.md"; then
+    nope "자기 제외: _INDEX.md가 자기 자신을 목록에 포함함"
   else
-    ok "자기 제외: index.md가 목록에서 빠짐"
+    ok "자기 제외: _INDEX.md가 목록에서 빠짐"
   fi
 }
 
@@ -124,11 +136,85 @@ test_preserves_metadata() {
 
   bash "$SCRIPT" "$dir" >/dev/null 2>&1
 
-  if grep -qF '| [릴리스-트랙과-호환성](./릴리스-트랙과-호환성.md) | Concept | 릴리스-트랙과-호환성 설명 |' "$dir/index.md"; then
+  if grep -qF '| [릴리스-트랙과-호환성](./릴리스-트랙과-호환성.md) | Concept | 릴리스-트랙과-호환성 설명 |' "$dir/_INDEX.md"; then
     ok "메타데이터: 한글 노드의 type·description이 온전히 반영됨"
   else
     nope "메타데이터: 한글 노드 행이 기대와 다름"
-    grep '릴리스' "$dir/index.md" | sed 's/^/       /'
+    grep '릴리스' "$dir/_INDEX.md" | sed 's/^/       /'
+  fi
+}
+
+# --- 테스트 5: history 디렉토리는 전용 스키마로 생성된다 ---
+test_history_schema() {
+  local dir="$WORK/case5/docs/history"
+  make_history_fixture "$dir"
+
+  bash "$SCRIPT" "$dir" >/dev/null 2>&1
+
+  if grep -qF '| 날짜 | 제목 | tags |' "$dir/_INDEX.md"; then
+    ok "history 스키마: 헤더가 날짜|제목|tags"
+  else
+    nope "history 스키마: 헤더가 기대와 다름"
+    head -10 "$dir/_INDEX.md" | sed 's/^/       /'
+  fi
+
+  if grep -qF '| 2026-03-04 | [둘째 작업](./2026-03-04-001-claude-둘째-작업.md) | fix, ci |' "$dir/_INDEX.md"; then
+    ok "history 행: 날짜·제목·다중 tags 정확, 본문 목록이 섞이지 않음"
+  else
+    nope "history 행: 기대와 다름"
+    grep '둘째' "$dir/_INDEX.md" | sed 's/^/       /'
+  fi
+}
+
+# --- 테스트 6: history는 날짜 역순(최신 우선)으로 정렬된다 ---
+test_history_order() {
+  local dir="$WORK/case6/docs/history"
+  make_history_fixture "$dir"
+
+  bash "$SCRIPT" "$dir" >/dev/null 2>&1
+
+  local first_row
+  first_row=$(grep '^| 2026-' "$dir/_INDEX.md" | head -1)
+  case "$first_row" in
+    *2026-03-04*) ok "history 정렬: 최신이 맨 위" ;;
+    *)            nope "history 정렬: 최신이 맨 위가 아님 (첫 행: $first_row)" ;;
+  esac
+}
+
+# --- 테스트 7: 이전 이름의 인덱스는 새 이름으로 옮겨진다 ---
+# 옮기지 않으면 일반 노드로 잡혀 목록에 인덱스 자신이 들어가고,
+# 갱신이 멈춘 파일이 실제와 어긋난 채 남는다.
+test_migrates_legacy_index() {
+  local dir="$WORK/case7/docs/knowledge"
+  make_fixture "$dir"
+  printf -- '---\ntype: Index\ntitle: OKF 노드 지도\n---\n\n# OKF 노드 지도\n' > "$dir/index.md"
+
+  bash "$SCRIPT" "$dir" >/dev/null 2>&1
+
+  if [ -f "$dir/index.md" ]; then
+    nope "레거시 이전: 이전 이름의 인덱스가 남아 있음"
+  elif grep -q '\[index\](\./index\.md)' "$dir/_INDEX.md"; then
+    nope "레거시 이전: 이전 인덱스가 목록에 노드로 들어감"
+  else
+    ok "레거시 이전: 이전 이름의 인덱스가 정리됨"
+  fi
+}
+
+# --- 테스트 8: 사용자가 만든 index.md(인덱스가 아닌 노드)는 보존한다 ---
+test_preserves_user_node_named_index() {
+  local dir="$WORK/case8/docs/knowledge"
+  mkdir -p "$dir"
+  printf -- '---\ntype: Concept\ndescription: 사용자가 직접 쓴 노드\n---\n\n# index\n' > "$dir/index.md"
+
+  bash "$SCRIPT" "$dir" >/dev/null 2>&1
+
+  if [ ! -f "$dir/index.md" ]; then
+    nope "사용자 노드 보존: type이 Index가 아닌 index.md를 지워버림"
+  elif grep -qF '| [index](./index.md) | Concept | 사용자가 직접 쓴 노드 |' "$dir/_INDEX.md"; then
+    ok "사용자 노드 보존: index.md가 일반 노드로 유지됨"
+  else
+    nope "사용자 노드 보존: 목록에서 기대한 행을 찾지 못함"
+    grep '^|' "$dir/_INDEX.md" | sed 's/^/       /'
   fi
 }
 
@@ -137,6 +223,10 @@ test_locale_independent_output
 test_idempotent
 test_excludes_self
 test_preserves_metadata
+test_history_schema
+test_history_order
+test_migrates_legacy_index
+test_preserves_user_node_named_index
 
 printf '\n통과 %d · 실패 %d\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
