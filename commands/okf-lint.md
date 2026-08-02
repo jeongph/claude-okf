@@ -15,10 +15,13 @@ allowed-tools: [Bash, Read, Grep, Glob]
 
 ## 단계 1: 점검 범위 결정
 
-점검 경로는 다음 순서로 정한다: ① 인자로 주어지면 그 경로 ② 없으면 `docs/knowledge/`.
+점검 경로는 다음 순서로 정한다: ① 인자로 주어지면 그 경로 ② 없으면 `docs/knowledge/`. 이후 모든 단계는 이 단계에서 정한 `$OKF_DIR`을 그대로 사용한다.
 
 ```bash
-find docs/knowledge -name "*.md" | sort
+OKF_DIR="${1:-}"
+[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
+
+find "$OKF_DIR" -name "*.md" | sort
 ```
 
 ---
@@ -28,8 +31,8 @@ find docs/knowledge -name "*.md" | sort
 같은 `title` 또는 `resource` 값을 가진 노드를 찾아 충돌 여부를 확인한다.
 
 ```bash
-grep -rh '^resource:' docs/knowledge/ | sort | uniq -d
-grep -rh '^title:' docs/knowledge/ | sort | uniq -d
+grep -rh '^resource:' "$OKF_DIR/" | sort | uniq -d
+grep -rh '^title:' "$OKF_DIR/" | sort | uniq -d
 ```
 
 ---
@@ -39,7 +42,7 @@ grep -rh '^title:' docs/knowledge/ | sort | uniq -d
 노드 `timestamp`와 `resource`의 마지막 git 변경 시각을 비교한다.
 
 ```bash
-grep -rn '^timestamp:' docs/knowledge/
+grep -rn '^timestamp:' "$OKF_DIR/"
 git log --follow -1 --format="%ci" -- <resource 경로>
 ```
 
@@ -53,9 +56,9 @@ git log --follow -1 --format="%ci" -- <resource 경로>
 while IFS= read -r f; do
   name=$(basename "$f" .md)
   if [ "$name" = "index" ]; then continue; fi
-  count=$(grep -rl "$name" docs/knowledge/ | grep -v "^$f$" | wc -l | tr -d ' ')
+  count=$(grep -rl "$name" "$OKF_DIR/" | grep -v "^$f$" | wc -l | tr -d ' ')
   if [ "$count" -eq 0 ]; then echo "ORPHAN: $f"; fi
-done < <(find docs/knowledge -name "*.md" -not -name "_INDEX.md")
+done < <(find "$OKF_DIR" -name "*.md" -not -name "_INDEX.md")
 ```
 
 ---
@@ -66,11 +69,11 @@ done < <(find docs/knowledge -name "*.md" -not -name "_INDEX.md")
 
 ```bash
 # (이 절차는 okf-lint skill과 동기화 대상)
-grep -rh '\[.*\](\.\/.*\.md)' docs/knowledge/ \
+grep -rh '\[.*\](\.\/.*\.md)' "$OKF_DIR/" \
   | grep -oE '\(\.\/[A-Za-z0-9_-]+\.md\)' \
   | sed -E 's/\(\.\/([^)]+)\)/\1/' | sort -u \
   | while read -r target; do
-      [ -f "docs/knowledge/$target" ] || echo "MISSING: $target"
+      [ -f "$OKF_DIR/$target" ] || echo "MISSING: $target"
     done
 ```
 
@@ -83,7 +86,7 @@ grep -rh '\[.*\](\.\/.*\.md)' docs/knowledge/ \
 ```
 ## OKF Lint 결과
 
-점검 경로: docs/knowledge/
+점검 경로: $OKF_DIR
 점검 시각: <ISO8601, KST>
 
 ### 모순 (N건)
