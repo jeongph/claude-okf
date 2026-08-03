@@ -8,7 +8,7 @@
 # 편집한 파일이 위키 "안"인지만 본다. 예전처럼 상위를 거슬러 올라가며 위키를
 # 탐색하면 레포 안 어떤 파일을 건드려도(README·src/**) index가 재생성되고,
 # 루프가 / 까지 올라가 레포 경계까지 넘는다.
-resolve_okf_dir() {
+resolve_wiki_dir() {
   local dir="${1:-}"
   if [ -n "$dir" ]; then
     printf '%s' "$dir"

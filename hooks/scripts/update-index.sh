@@ -6,7 +6,7 @@ set -euo pipefail
 # UTF-8 바이트 순서 = 코드포인트 순서라 한글도 가나다순으로 정렬된다.
 export LC_ALL=C
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib-resolve-dir.sh"
-DIR=$(resolve_okf_dir "${1:-}")
+DIR=$(resolve_wiki_dir "${1:-}")
 [ -z "$DIR" ] && exit 0
 [ -d "$DIR" ] || exit 0
 OUT="$DIR/_INDEX.md"

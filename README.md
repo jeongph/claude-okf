@@ -1,7 +1,7 @@
-# claude-okf
+# claude-wiki
 
-[![version](https://img.shields.io/github/v/release/jeongph/claude-okf?label=version&color=blue)](https://github.com/jeongph/claude-okf/releases)
-[![license](https://img.shields.io/github/license/jeongph/claude-okf?color=lightgrey)](LICENSE)
+[![version](https://img.shields.io/github/v/release/jeongph/claude-wiki?label=version&color=blue)](https://github.com/jeongph/claude-wiki/releases)
+[![license](https://img.shields.io/github/license/jeongph/claude-wiki?color=lightgrey)](LICENSE)
 
 OKF(Open Knowledge Format) 기반 LLM-wiki를 Claude Code에서 **자동 활성화**하는 플러그인.
 
@@ -11,7 +11,7 @@ OKF(Open Knowledge Format) 기반 LLM-wiki를 Claude Code에서 **자동 활성�
 
 - **OKF** (Open Knowledge Format, Google): 지식 노드 포맷 표준 — 마크다운 + YAML frontmatter, `type` 필수, 마크다운 링크로 관계 그래프
 - **LLM-wiki** (Andrej Karpathy): 에이전트가 읽고 쓰고 유지하는 마크다운 지식베이스 — `raw`/`wiki`/스키마 3-layer, ingest/query/lint 워크플로우
-- **claude-okf** = 둘을 융합 — OKF의 *표준 포맷* + Karpathy의 *운영 워크플로우* 를 Claude Code 플러그인으로 패키징
+- **claude-wiki** = 둘을 융합 — OKF의 *표준 포맷* + Karpathy의 *운영 워크플로우* 를 Claude Code 플러그인으로 패키징
 
 ## 설치
 
@@ -26,30 +26,44 @@ OKF(Open Knowledge Format) 기반 LLM-wiki를 Claude Code에서 **자동 활성�
 플러그인 설치:
 
 ```sh
-/plugin install claude-okf@jeongph-claude-plugins
+/plugin install claude-wiki@jeongph-claude-plugins
 ```
 
 설치 후 Claude Code를 재시작하면 플러그인이 자동 활성화된다.
+
+### 이전 이름(claude-okf)을 쓰던 경우
+
+플러그인 이름이 `claude-okf`에서 `claude-wiki`로 바뀌었다. OKF는 노드 포맷 표준의 이름이라 플러그인이 포맷 검사기처럼 읽혔으나, 실제 역할은 노드 작성·검증·인덱스 생성·질의응답까지 포함한다.
+
+식별자가 달라져 자동 전환되지 않으므로 이전 것을 제거하고 새로 설치한다.
+
+```sh
+/plugin uninstall claude-okf@jeongph-claude-plugins
+/plugin marketplace update jeongph-claude-plugins
+/plugin install claude-wiki@jeongph-claude-plugins
+```
+
+명령·skill·agent 이름의 접두사도 `okf-`에서 `wiki-`로 바뀌었다 (`/okf-ask` → `/wiki-ask` 등). **노드 포맷과 OKF 규약 자체는 그대로**이므로 기존 `docs/knowledge/` 내용은 손댈 필요가 없다.
 
 ## 컴포넌트
 
 | 종류 | 이름 | 역할 |
 |------|------|------|
-| skill | `okf-authoring` | OKF 노드 작성·편집 가이드 — 양식 안내 + 노드 초안 생성 |
-| skill | `okf-lint` | OKF 노드 정적 검사 — frontmatter 필수 필드·관계 링크 검증 |
-| command | `/okf-ingest` | 코드·문서를 분석해 OKF 노드 초안을 생성하고 wiki에 추가 |
-| command | `/okf-validate` | 지정 경로의 OKF 노드를 검증하고 오류를 보고 |
-| command | `/okf-lint` | OKF 노드 lint 실행 (stale 링크·중복 노드·모순 점검) |
-| command | `/okf-ask` | OKF wiki를 기반으로 grounded 답변 생성 |
+| skill | `wiki-authoring` | OKF 노드 작성·편집 가이드 — 양식 안내 + 노드 초안 생성 |
+| skill | `wiki-lint` | OKF 노드 정적 검사 — frontmatter 필수 필드·관계 링크 검증 |
+| command | `/wiki-ingest` | 코드·문서를 분석해 OKF 노드 초안을 생성하고 wiki에 추가 |
+| command | `/wiki-validate` | 지정 경로의 OKF 노드를 검증하고 오류를 보고 |
+| command | `/wiki-lint` | OKF 노드 lint 실행 (stale 링크·중복 노드·모순 점검) |
+| command | `/wiki-ask` | OKF wiki를 기반으로 grounded 답변 생성 |
 | hook | `PostToolUse (Write\|Edit 트리거)` | 노드 저장 시 자동으로 검증·index 갱신 실행 |
-| agent | `okf-enrichment` | 코드베이스 분석 후 OKF 노드를 풍부하게 보강하는 전용 에이전트 |
+| agent | `wiki-enrichment` | 코드베이스 분석 후 OKF 노드를 풍부하게 보강하는 전용 에이전트 |
 
 ## 사용 예
 
 ### 코드에서 노드 초안 생성
 
 ```
-/okf-ingest repositories/my-service/src
+/wiki-ingest repositories/my-service/src
 ```
 
 `src` 디렉토리를 분석해 OKF 노드 초안을 생성하고 wiki에 추가한다.
@@ -78,7 +92,7 @@ OKF 노드 파일(`.md`)을 편집·저장하면 `PostToolUse (Write|Edit 트리
 ### 위키 기반 질의
 
 ```
-/okf-ask my-service는 어떤 인프라에 배포되나요?
+/wiki-ask my-service는 어떤 인프라에 배포되나요?
 ```
 
 OKF wiki를 검색해 grounded 답변을 생성한다.
@@ -86,7 +100,7 @@ OKF wiki를 검색해 grounded 답변을 생성한다.
 ### 수동 노드 검증
 
 ```
-/okf-validate docs/knowledge/my-node.md
+/wiki-validate docs/knowledge/my-node.md
 ```
 
 지정 파일의 OKF 노드를 검증하고 오류 목록을 출력한다.
