@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib-resolve-dir.sh"
-DIR=$(resolve_okf_dir "${1:-}")
+DIR=$(resolve_wiki_dir "${1:-}")
 [ -z "$DIR" ] && exit 0
 [ -d "$DIR" ] || { echo "no dir: $DIR"; exit 0; }
 fail=0

@@ -5,11 +5,11 @@ allowed-tools: [Bash, Read, Grep, Glob]
 
 # OKF Lint
 
-`okf-lint` skill을 실행해 OKF 지식 노드의 정합성을 점검한다.
+`wiki-lint` skill을 실행해 OKF 지식 노드의 정합성을 점검한다.
 
 ## 실행 흐름
 
-`okf-lint` skill의 절차를 그대로 따른다. 아래 순서로 실행한다.
+`wiki-lint` skill의 절차를 그대로 따른다. 아래 순서로 실행한다.
 
 ---
 
@@ -19,11 +19,11 @@ allowed-tools: [Bash, Read, Grep, Glob]
 
 ```bash
 # 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
-OKF_DIR="${1:-}"
-[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
-case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
+WIKI_DIR="${1:-}"
+[ -z "$WIKI_DIR" ] && WIKI_DIR=docs/knowledge
+case "$WIKI_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($WIKI_DIR)" >&2; exit 1 ;; esac
 
-find "$OKF_DIR" -name "*.md" | sort
+find "$WIKI_DIR" -name "*.md" | sort
 ```
 
 ---
@@ -34,12 +34,12 @@ find "$OKF_DIR" -name "*.md" | sort
 
 ```bash
 # 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
-OKF_DIR="${1:-}"
-[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
-case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
+WIKI_DIR="${1:-}"
+[ -z "$WIKI_DIR" ] && WIKI_DIR=docs/knowledge
+case "$WIKI_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($WIKI_DIR)" >&2; exit 1 ;; esac
 
-grep -rh '^resource:' "$OKF_DIR/" | sort | uniq -d
-grep -rh '^title:' "$OKF_DIR/" | sort | uniq -d
+grep -rh '^resource:' "$WIKI_DIR/" | sort | uniq -d
+grep -rh '^title:' "$WIKI_DIR/" | sort | uniq -d
 ```
 
 ---
@@ -50,11 +50,11 @@ grep -rh '^title:' "$OKF_DIR/" | sort | uniq -d
 
 ```bash
 # 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
-OKF_DIR="${1:-}"
-[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
-case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
+WIKI_DIR="${1:-}"
+[ -z "$WIKI_DIR" ] && WIKI_DIR=docs/knowledge
+case "$WIKI_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($WIKI_DIR)" >&2; exit 1 ;; esac
 
-grep -rn '^timestamp:' "$OKF_DIR/"
+grep -rn '^timestamp:' "$WIKI_DIR/"
 git log --follow -1 --format="%ci" -- <resource 경로>
 ```
 
@@ -66,15 +66,15 @@ git log --follow -1 --format="%ci" -- <resource 경로>
 
 ```bash
 # 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
-OKF_DIR="${1:-}"
-[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
-case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
+WIKI_DIR="${1:-}"
+[ -z "$WIKI_DIR" ] && WIKI_DIR=docs/knowledge
+case "$WIKI_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($WIKI_DIR)" >&2; exit 1 ;; esac
 
 while IFS= read -r f; do
   name=$(basename "$f" .md)
-  count=$(grep -rl "$name" "$OKF_DIR/" | grep -v "^$f$" | wc -l | tr -d ' ')
+  count=$(grep -rl "$name" "$WIKI_DIR/" | grep -v "^$f$" | wc -l | tr -d ' ')
   if [ "$count" -eq 0 ]; then echo "ORPHAN: $f"; fi
-done < <(find "$OKF_DIR" -name "*.md" -not -name "_INDEX.md")
+done < <(find "$WIKI_DIR" -name "*.md" -not -name "_INDEX.md")
 ```
 
 ---
@@ -85,16 +85,16 @@ done < <(find "$OKF_DIR" -name "*.md" -not -name "_INDEX.md")
 
 ```bash
 # 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
-OKF_DIR="${1:-}"
-[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
-case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
+WIKI_DIR="${1:-}"
+[ -z "$WIKI_DIR" ] && WIKI_DIR=docs/knowledge
+case "$WIKI_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($WIKI_DIR)" >&2; exit 1 ;; esac
 
-# (이 절차는 okf-lint skill과 동기화 대상)
-grep -rh '\[.*\](\.\/.*\.md)' "$OKF_DIR/" \
+# (이 절차는 wiki-lint skill과 동기화 대상)
+grep -rh '\[.*\](\.\/.*\.md)' "$WIKI_DIR/" \
   | grep -oE '\(\.\/[A-Za-z0-9_-]+\.md\)' \
   | sed -E 's/\(\.\/([^)]+)\)/\1/' | sort -u \
   | while read -r target; do
-      [ -f "$OKF_DIR/$target" ] || echo "MISSING: $target"
+      [ -f "$WIKI_DIR/$target" ] || echo "MISSING: $target"
     done
 ```
 

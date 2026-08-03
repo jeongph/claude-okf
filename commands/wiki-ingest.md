@@ -29,12 +29,12 @@ ls <경로>
 
 ---
 
-## 단계 2: okf-enrichment agent 호출
+## 단계 2: wiki-enrichment agent 호출
 
-`Task` 도구로 `okf-enrichment` agent를 호출한다.
+`Task` 도구로 `wiki-enrichment` agent를 호출한다.
 
 - `description`: "OKF 노드 초안 생성"
-- `prompt`: 대상 코드 경로와 함께 "okf-authoring 양식을 따라 노드 초안을 만들되, 컬럼·시그니처를 복제하지 말고 관계·맥락을 보강하라"는 지시를 담는다.
+- `prompt`: 대상 코드 경로와 함께 "wiki-authoring 양식을 따라 노드 초안을 만들되, 컬럼·시그니처를 복제하지 말고 관계·맥락을 보강하라"는 지시를 담는다.
 
 agent가 반환한 노드 초안을 화면에 출력한다.
 
@@ -53,7 +53,7 @@ agent가 반환한 노드 초안을 화면에 출력한다.
 
 사용자가 승인하면 다음 순서로 저장한다.
 
-1. 저장 경로 결정: `docs/knowledge/`. 파일명: `<경로>/<노드명>.md` (`okf-authoring` skill의 날짜 표기 규칙 준수)
+1. 저장 경로 결정: `docs/knowledge/`. 파일명: `<경로>/<노드명>.md` (`wiki-authoring` skill의 날짜 표기 규칙 준수)
 2. 파일 작성
 3. `docs/knowledge/_INDEX.md` 열어 새 노드 항목 추가
 4. `docs/knowledge/log.md`에 아래 형식으로 한 줄 append (없으면 생성)

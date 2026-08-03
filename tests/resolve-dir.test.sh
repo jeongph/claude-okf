@@ -18,10 +18,10 @@ fail=0
 ok()   { printf '  ok   %s\n' "$1"; pass=$((pass + 1)); }
 nope() { printf '  FAIL %s\n' "$1"; fail=$((fail + 1)); }
 
-# 훅이 넘기는 형태의 stdin JSON으로 resolve_okf_dir 를 호출한다.
+# 훅이 넘기는 형태의 stdin JSON으로 resolve_wiki_dir 를 호출한다.
 resolve() {
   printf '{"tool_name":"Write","tool_input":{"file_path":"%s"}}' "$1" \
-    | bash -c "source '$LIB'; resolve_okf_dir ''"
+    | bash -c "source '$LIB'; resolve_wiki_dir ''"
 }
 
 # 기대 경로와 실제 결과를 비교한다. want 가 빈 문자열이면 "무동작"을 기대한다.
@@ -80,7 +80,7 @@ expect "상위에 위키가 있는 별개 프로젝트 → 무동작" "$WORK/rep
 expect "docs/okf 노드 → 무동작(지원 종료)"  "$REPO3/docs/okf/노드.md"             ""
 
 # --- 인자로 경로를 직접 주는 경로는 그대로 유지된다 (커맨드에서 호출하는 방식) ---
-direct=$(bash -c "source '$LIB'; resolve_okf_dir '$REPO/docs/knowledge'" </dev/null)
+direct=$(bash -c "source '$LIB'; resolve_wiki_dir '$REPO/docs/knowledge'" </dev/null)
 if [ "$direct" = "$REPO/docs/knowledge" ]; then
   ok "인자 직접 지정 → 그대로 반환"
 else
@@ -88,7 +88,7 @@ else
 fi
 
 # --- file_path 가 없는 payload 는 조용히 무동작 ---
-empty=$(printf '{"tool_name":"Bash"}' | bash -c "source '$LIB'; resolve_okf_dir ''")
+empty=$(printf '{"tool_name":"Bash"}' | bash -c "source '$LIB'; resolve_wiki_dir ''")
 if [ -z "$empty" ]; then
   ok "file_path 없는 payload → 무동작"
 else

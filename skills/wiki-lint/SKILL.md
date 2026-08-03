@@ -1,5 +1,5 @@
 ---
-name: okf-lint
+name: wiki-lint
 description: Use after writing/updating OKF nodes, or when checking wiki health — finds contradictions, stale claims, orphan pages, missing cross-references. 사용자가 "위키 점검", "okf lint", "노드 정합성 확인", "오래된 노드 찾아"라고 하거나, AI가 노드를 여러 개 갱신한 뒤 스스로 정합성을 점검할 때 사용.
 ---
 
@@ -7,7 +7,7 @@ description: Use after writing/updating OKF nodes, or when checking wiki health 
 
 OKF 지식 노드의 정합성을 점검하는 위키 health-check 가이드다.
 
-비유: 코드에 `eslint`가 있듯, OKF 위키엔 `okf-lint`가 있다. 노드가 서로 모순되거나, 원본과 동떨어지거나, 고립되거나, 언급만 되고 존재하지 않는 개념을 찾아낸다.
+비유: 코드에 `eslint`가 있듯, OKF 위키엔 `wiki-lint`가 있다. 노드가 서로 모순되거나, 원본과 동떨어지거나, 고립되거나, 언급만 되고 존재하지 않는 개념을 찾아낸다.
 
 **원칙: 자동 수정 금지.** lint 결과는 표로 보고하고, 모든 수정은 사용자 확인 후 진행한다.
 
@@ -19,11 +19,11 @@ OKF 지식 노드의 정합성을 점검하는 위키 health-check 가이드다.
 
 ```bash
 # 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
-OKF_DIR="${1:-}"
-[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
-case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
+WIKI_DIR="${1:-}"
+[ -z "$WIKI_DIR" ] && WIKI_DIR=docs/knowledge
+case "$WIKI_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($WIKI_DIR)" >&2; exit 1 ;; esac
 
-find "$OKF_DIR" -name "*.md" | sort
+find "$WIKI_DIR" -name "*.md" | sort
 ```
 
 범위가 맞으면 아래 4가지 점검을 순서대로 수행한다. 각 점검의 코드 블록도 독립 실행이므로 동일한 결정 로직을 반복한다.
@@ -38,15 +38,15 @@ find "$OKF_DIR" -name "*.md" | sort
 
 ```bash
 # 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
-OKF_DIR="${1:-}"
-[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
-case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
+WIKI_DIR="${1:-}"
+[ -z "$WIKI_DIR" ] && WIKI_DIR=docs/knowledge
+case "$WIKI_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($WIKI_DIR)" >&2; exit 1 ;; esac
 
 # resource 중복 확인
-grep -rh '^resource:' "$OKF_DIR/" | sort | uniq -d
+grep -rh '^resource:' "$WIKI_DIR/" | sort | uniq -d
 
 # title 중복 확인
-grep -rh '^title:' "$OKF_DIR/" | sort | uniq -d
+grep -rh '^title:' "$WIKI_DIR/" | sort | uniq -d
 ```
 
 중복이 발견되면 해당 파일들을 열어 주요 주장(요약·구성·상태)을 비교한다. 충돌 여부는 **사람이 판단**한다. AI는 후보를 제시하는 역할에 그친다.
@@ -67,12 +67,12 @@ grep -rh '^title:' "$OKF_DIR/" | sort | uniq -d
 
 ```bash
 # 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
-OKF_DIR="${1:-}"
-[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
-case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
+WIKI_DIR="${1:-}"
+[ -z "$WIKI_DIR" ] && WIKI_DIR=docs/knowledge
+case "$WIKI_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($WIKI_DIR)" >&2; exit 1 ;; esac
 
 # 노드별 timestamp 추출
-grep -rn '^timestamp:' "$OKF_DIR/"
+grep -rn '^timestamp:' "$WIKI_DIR/"
 
 # resource 경로의 마지막 git 변경 시각 확인 (resource 값을 확인 후 대입)
 git log --follow -1 --format="%ci" -- <resource 경로>
@@ -96,22 +96,22 @@ git log --follow -1 --format="%ci" -- <resource 경로>
 
 ```bash
 # 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
-OKF_DIR="${1:-}"
-[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
-case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
+WIKI_DIR="${1:-}"
+[ -z "$WIKI_DIR" ] && WIKI_DIR=docs/knowledge
+case "$WIKI_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($WIKI_DIR)" >&2; exit 1 ;; esac
 
 # 점검 대상 노드 목록
-find "$OKF_DIR" -name "*.md" -not -name "_INDEX.md" | sort
+find "$WIKI_DIR" -name "*.md" -not -name "_INDEX.md" | sort
 
 # 특정 노드(예: service-a.md)를 링크하는 파일이 있는지 확인
-grep -rl "service-a" "$OKF_DIR/"
+grep -rl "service-a" "$WIKI_DIR/"
 
 # inbound 링크 0개인 파일 일괄 탐색 (하위 디렉토리 포함)
 while IFS= read -r f; do
   name=$(basename "$f" .md)
-  count=$(grep -rl "$name" "$OKF_DIR/" | grep -v "^$f$" | wc -l | tr -d ' ')
+  count=$(grep -rl "$name" "$WIKI_DIR/" | grep -v "^$f$" | wc -l | tr -d ' ')
   if [ "$count" -eq 0 ]; then echo "ORPHAN: $f"; fi
-done < <(find "$OKF_DIR" -name "*.md" -not -name "_INDEX.md")
+done < <(find "$WIKI_DIR" -name "*.md" -not -name "_INDEX.md")
 ```
 
 `_INDEX.md`는 orphan 판단에서 제외한다 (목차 역할이므로 링크를 받지 않아도 정상).
@@ -132,17 +132,17 @@ done < <(find "$OKF_DIR" -name "*.md" -not -name "_INDEX.md")
 
 ```bash
 # 코드 블록은 각각 독립적으로 실행되어 앞 블록의 변수를 이어받지 않는다 — 매 블록에서 경로를 다시 계산한다.
-OKF_DIR="${1:-}"
-[ -z "$OKF_DIR" ] && OKF_DIR=docs/knowledge
-case "$OKF_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($OKF_DIR)" >&2; exit 1 ;; esac
+WIKI_DIR="${1:-}"
+[ -z "$WIKI_DIR" ] && WIKI_DIR=docs/knowledge
+case "$WIKI_DIR" in ""|/) echo "ERROR: 점검 경로를 확인할 수 없음 ($WIKI_DIR)" >&2; exit 1 ;; esac
 
 # 관계 섹션의 링크 대상 파일 존재 여부 확인
-# (이 절차는 okf-lint skill과 동기화 대상)
-grep -rh '\[.*\](\.\/.*\.md)' "$OKF_DIR/" \
+# (이 절차는 wiki-lint skill과 동기화 대상)
+grep -rh '\[.*\](\.\/.*\.md)' "$WIKI_DIR/" \
   | grep -oE '\(\.\/[A-Za-z0-9_-]+\.md\)' \
   | sed -E 's/\(\.\/([^)]+)\)/\1/' | sort -u \
   | while read -r target; do
-      [ -f "$OKF_DIR/$target" ] || echo "MISSING: $target"
+      [ -f "$WIKI_DIR/$target" ] || echo "MISSING: $target"
     done
 ```
 
