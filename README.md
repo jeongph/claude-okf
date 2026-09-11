@@ -3,15 +3,15 @@
 [![version](https://img.shields.io/github/v/release/jeongph/claude-wiki?label=version&color=blue)](https://github.com/jeongph/claude-wiki/releases)
 [![license](https://img.shields.io/github/license/jeongph/claude-wiki?color=lightgrey)](LICENSE)
 
-OKF(Open Knowledge Format) 기반 LLM-wiki를 Claude Code에서 **자동 활성화**하는 플러그인.
+코드와 문서를 바탕으로 위키를 작성하고, 내용을 점검하거나 위키에서 답을 찾습니다.
 
-설치하면 — AI가 OKF 양식을 알고, 코드에서 노드 초안을 만들고, 노드 작성 시 자동 검증·`_INDEX.md` 갱신, 모순·stale 점검, 위키에서 grounded 답을 찾습니다.
+코드에서 위키 문서인 노드의 초안을 만들고, 저장할 때 형식을 검증하며 `_INDEX.md`를 갱신합니다. 문서 간 모순과 오래된 내용을 점검하고, 위키에 기록된 근거를 바탕으로 질문에 답합니다.
 
 ## 개념
 
-- **OKF** (Open Knowledge Format, Google): 지식 노드 포맷 표준 — 마크다운 + YAML frontmatter, `type` 필수, 마크다운 링크로 관계 그래프
-- **LLM-wiki** (Andrej Karpathy): 에이전트가 읽고 쓰고 유지하는 마크다운 지식베이스 — `raw`/`wiki`/스키마 3-layer, ingest/query/lint 워크플로우
-- **claude-wiki** = 둘을 융합 — OKF의 *표준 포맷* + Karpathy의 *운영 워크플로우* 를 Claude Code 플러그인으로 패키징
+- **OKF** (Open Knowledge Format, Google): 지식 노드를 마크다운과 YAML frontmatter로 작성하는 형식이다. `type` 필드로 노드 종류를 지정하고 마크다운 링크로 노드 간 관계를 연결한다
+- **LLM-wiki** (Andrej Karpathy): 에이전트가 읽고 관리하는 마크다운 지식베이스다. 원본 자료(`raw`), 정리된 문서(`wiki`), 스키마를 구분하고 자료 추가, 질의, 검사를 수행한다
+- **claude-wiki**: OKF의 문서 형식과 LLM-wiki의 운영 절차를 Claude Code에서 사용하도록 구성한 플러그인이다
 
 ## 설치
 
@@ -53,10 +53,10 @@ OKF(Open Knowledge Format) 기반 LLM-wiki를 Claude Code에서 **자동 활성�
 | skill | `wiki-lint` | OKF 노드 정적 검사 — frontmatter 필수 필드·관계 링크 검증 |
 | command | `/wiki-ingest` | 코드·문서를 분석해 OKF 노드 초안을 생성하고 wiki에 추가 |
 | command | `/wiki-validate` | 지정 경로의 OKF 노드를 검증하고 오류를 보고 |
-| command | `/wiki-lint` | OKF 노드 lint 실행 (stale 링크·중복 노드·모순 점검) |
-| command | `/wiki-ask` | OKF wiki를 기반으로 grounded 답변 생성 |
+| command | `/wiki-lint` | OKF 노드 lint 실행 (오래된 링크·중복 노드·모순 점검) |
+| command | `/wiki-ask` | OKF wiki를 기반으로 근거가 있는 답변 생성 |
 | hook | `PostToolUse (Write\|Edit 트리거)` | 노드 저장 시 자동으로 검증·index 갱신 실행 |
-| agent | `wiki-enrichment` | 코드베이스 분석 후 OKF 노드를 풍부하게 보강하는 전용 에이전트 |
+| agent | `wiki-enrichment` | 코드베이스 분석 후 OKF 노드에 내용을 보강하는 전용 에이전트 |
 
 ## 사용 예
 
@@ -95,7 +95,7 @@ OKF 노드 파일(`.md`)을 편집·저장하면 `PostToolUse (Write|Edit 트리
 /wiki-ask my-service는 어떤 인프라에 배포되나요?
 ```
 
-OKF wiki를 검색해 grounded 답변을 생성한다.
+OKF wiki를 검색해 근거가 있는 답변을 생성한다.
 
 ### 수동 노드 검증
 

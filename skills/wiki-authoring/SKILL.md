@@ -101,7 +101,7 @@ OKF 노드는 코드의 복제가 아니라, 코드 위에 얹는 *맥락 레이
 
 ### 싱크 회피
 
-원본 코드가 단일 진실(SSOT)이다. 상세는 `resource`로 원본을 가리키고, 노드엔 코드에 없는 맥락만 둔다.
+구현 내용은 원본 코드를 기준으로 확인한다. 자세한 구현은 `resource`로 원본을 연결하고, 노드에는 코드만으로 알기 어려운 맥락을 적는다.
 
 ```yaml
 resource: repositories/my-service/src/domain/order
